@@ -1,0 +1,176 @@
+
+// Simple in-memory data service
+// In a real application, this would connect to a backend API
+
+// Types for our data
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  dimensions: string;
+  category: string;
+  useCase: string;
+  image: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+}
+
+// Initial sample data
+const initialProducts: Product[] = [
+  {
+    id: 1,
+    name: "Royal Crown Cornice",
+    description: "Elegant cornice design with intricate detailing.",
+    dimensions: "12cm height x 15cm projection",
+    category: "Ceiling Cornices",
+    useCase: "Living Rooms, Dining Rooms",
+    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d"
+  },
+  {
+    id: 2,
+    name: "Geometric 3D Wall Panel",
+    description: "Modern geometric pattern that creates a stunning visual effect.",
+    dimensions: "50cm x 50cm panels",
+    category: "3D Panels",
+    useCase: "Feature Walls, Office Spaces",
+    image: "https://images.unsplash.com/photo-1601084881623-cdf9a8ea242c"
+  },
+  {
+    id: 3,
+    name: "Classic Ceiling Medallion",
+    description: "Traditional ceiling medallion with floral motif.",
+    dimensions: "60cm diameter",
+    category: "Ceiling Medallions",
+    useCase: "Dining Rooms, Entryways",
+    image: "https://images.unsplash.com/photo-1603203040289-611d79cb1fe7"
+  }
+];
+
+const initialCategories: Category[] = [
+  {
+    id: 1,
+    name: "Ceiling Cornices",
+    description: "Elegant ceiling trim designs to enhance your room's perimeter.",
+    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6"
+  },
+  {
+    id: 2,
+    name: "Wall Panels",
+    description: "Add texture and dimension to your walls with decorative panels.",
+    image: "https://images.unsplash.com/photo-1600210492493-0946911123ea"
+  },
+  {
+    id: 3,
+    name: "Light Troughs",
+    description: "Create ambient lighting with our recessed ceiling designs.",
+    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d"
+  },
+  {
+    id: 4,
+    name: "Columns & Pillars",
+    description: "Classic and modern column designs for architectural accents.",
+    image: "https://images.unsplash.com/photo-1505796149773-5d216eb9ac6d"
+  }
+];
+
+// Create localStorage keys
+const PRODUCTS_STORAGE_KEY = 'gypsum-cms-products';
+const CATEGORIES_STORAGE_KEY = 'gypsum-cms-categories';
+
+// Helper function to initialize data
+const initializeData = <T>(key: string, initialData: T[]): T[] => {
+  try {
+    const storedData = localStorage.getItem(key);
+    if (!storedData) {
+      localStorage.setItem(key, JSON.stringify(initialData));
+      return initialData;
+    }
+    return JSON.parse(storedData);
+  } catch (error) {
+    console.error(`Error initializing ${key} data:`, error);
+    return initialData;
+  }
+};
+
+// Products CRUD operations
+export const getProducts = (): Product[] => {
+  return initializeData<Product>(PRODUCTS_STORAGE_KEY, initialProducts);
+};
+
+export const addProduct = (product: Omit<Product, "id">): Product => {
+  const products = getProducts();
+  const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+  
+  const newProduct: Product = {
+    ...product,
+    id: newId
+  };
+  
+  const updatedProducts = [...products, newProduct];
+  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedProducts));
+  
+  return newProduct;
+};
+
+export const updateProduct = (product: Product): Product => {
+  const products = getProducts();
+  const updatedProducts = products.map(p => 
+    p.id === product.id ? product : p
+  );
+  
+  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedProducts));
+  return product;
+};
+
+export const deleteProduct = (id: number): void => {
+  const products = getProducts();
+  const updatedProducts = products.filter(p => p.id !== id);
+  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedProducts));
+};
+
+// Categories CRUD operations
+export const getCategories = (): Category[] => {
+  return initializeData<Category>(CATEGORIES_STORAGE_KEY, initialCategories);
+};
+
+export const addCategory = (category: Omit<Category, "id">): Category => {
+  const categories = getCategories();
+  const newId = categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1;
+  
+  const newCategory: Category = {
+    ...category,
+    id: newId
+  };
+  
+  const updatedCategories = [...categories, newCategory];
+  localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(updatedCategories));
+  
+  return newCategory;
+};
+
+export const updateCategory = (category: Category): Category => {
+  const categories = getCategories();
+  const updatedCategories = categories.map(c => 
+    c.id === category.id ? category : c
+  );
+  
+  localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(updatedCategories));
+  return category;
+};
+
+export const deleteCategory = (id: number): void => {
+  const categories = getCategories();
+  const updatedCategories = categories.filter(c => c.id !== id);
+  localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(updatedCategories));
+};
+
+// Get category names for dropdown
+export const getCategoryNames = (): string[] => {
+  const categories = getCategories();
+  return categories.map(category => category.name);
+};

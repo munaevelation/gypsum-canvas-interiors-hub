@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent,
@@ -38,62 +38,27 @@ import {
   Ruler,
   Info,
   FileText,
-  CheckCircle2
 } from "lucide-react";
 import ImageUpload from "./ImageUpload";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-
-// Sample data - would come from an API in a real app
-const initialProducts = [
-  {
-    id: 1,
-    name: "Royal Crown Cornice",
-    description: "Elegant cornice design with intricate detailing.",
-    dimensions: "12cm height x 15cm projection",
-    category: "Ceiling Cornices",
-    useCase: "Living Rooms, Dining Rooms",
-    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d"
-  },
-  {
-    id: 2,
-    name: "Geometric 3D Wall Panel",
-    description: "Modern geometric pattern that creates a stunning visual effect.",
-    dimensions: "50cm x 50cm panels",
-    category: "3D Panels",
-    useCase: "Feature Walls, Office Spaces",
-    image: "https://images.unsplash.com/photo-1601084881623-cdf9a8ea242c"
-  },
-  {
-    id: 3,
-    name: "Classic Ceiling Medallion",
-    description: "Traditional ceiling medallion with floral motif.",
-    dimensions: "60cm diameter",
-    category: "Ceiling Medallions",
-    useCase: "Dining Rooms, Entryways",
-    image: "https://images.unsplash.com/photo-1603203040289-611d79cb1fe7"
-  }
-];
-
-// Sample categories - would come from an API in a real app
-const categories = [
-  "Ceiling Cornices",
-  "Wall Panels",
-  "Light Troughs",
-  "Columns & Pillars",
-  "Ceiling Medallions",
-  "Decorative Mouldings",
-  "3D Panels",
-  "Modern Trims"
-];
+import { 
+  getProducts, 
+  addProduct, 
+  updateProduct, 
+  deleteProduct, 
+  getCategoryNames,
+  Product
+} from "@/services/dataService";
 
 const ProductsManagement = () => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingProduct, setEditingProduct] = useState<number | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
   
-  const [newProduct, setNewProduct] = useState({
+  const [newProduct, setNewProduct] = useState<Omit<Product, "id">>({
     name: "",
     description: "",
     dimensions: "",
@@ -101,6 +66,22 @@ const ProductsManagement = () => {
     useCase: "",
     image: ""
   });
+  
+  // Load products and categories on component mount
+  useEffect(() => {
+    loadProducts();
+    loadCategories();
+  }, []);
+  
+  const loadProducts = () => {
+    const productData = getProducts();
+    setProducts(productData);
+  };
+  
+  const loadCategories = () => {
+    const categoryNames = getCategoryNames();
+    setCategories(categoryNames);
+  };
   
   const handleAddProduct = () => {
     setIsAdding(true);
@@ -121,16 +102,10 @@ const ProductsManagement = () => {
       return;
     }
     
-    const updatedProducts = [...products, {
-      id: products.length + 1,
-      ...newProduct
-    }];
-    
-    setProducts(updatedProducts);
+    addProduct(newProduct);
+    loadProducts(); // Reload the products list
     setIsAdding(false);
     
-    // Here you would also make an API call to save the product
-    console.log("Product saved:", newProduct);
     toast.success("Product added successfully!");
   };
   
@@ -138,7 +113,14 @@ const ProductsManagement = () => {
     setEditingProduct(id);
     const productToEdit = products.find(p => p.id === id);
     if (productToEdit) {
-      setNewProduct({ ...productToEdit });
+      setNewProduct({ 
+        name: productToEdit.name,
+        description: productToEdit.description,
+        dimensions: productToEdit.dimensions,
+        category: productToEdit.category,
+        useCase: productToEdit.useCase,
+        image: productToEdit.image
+      });
     }
   };
   
@@ -149,25 +131,25 @@ const ProductsManagement = () => {
       return;
     }
     
-    const updatedProducts = products.map(product => 
-      product.id === editingProduct ? { ...product, ...newProduct } : product
-    );
-    
-    setProducts(updatedProducts);
-    setEditingProduct(null);
-    
-    // Here you would also make an API call to update the product
-    console.log("Product updated:", newProduct);
-    toast.success("Product updated successfully!");
+    if (editingProduct !== null) {
+      const updatedProduct = {
+        id: editingProduct,
+        ...newProduct
+      };
+      
+      updateProduct(updatedProduct);
+      loadProducts(); // Reload the products list
+      setEditingProduct(null);
+      
+      toast.success("Product updated successfully!");
+    }
   };
   
   const handleDeleteProduct = (id: number) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      const updatedProducts = products.filter(product => product.id !== id);
-      setProducts(updatedProducts);
+      deleteProduct(id);
+      loadProducts(); // Reload the products list
       
-      // Here you would also make an API call to delete the product
-      console.log("Product deleted, ID:", id);
       toast.success("Product deleted successfully!");
     }
   };

@@ -1,14 +1,41 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminHeader from "@/components/admin/AdminHeader";
 import ProductsManagement from "@/components/admin/ProductsManagement";
 import CategoriesManagement from "@/components/admin/CategoriesManagement";
 import { PanelTop, Layers } from "lucide-react";
+import { toast } from "sonner";
+import { getProducts, getCategories } from "@/services/dataService";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("products");
+  const [productCount, setProductCount] = useState(0);
+  const [categoryCount, setCategoryCount] = useState(0);
+
+  // Load counts on initial render
+  useEffect(() => {
+    updateCounts();
+  }, []);
+
+  const updateCounts = () => {
+    const products = getProducts();
+    const categories = getCategories();
+    setProductCount(products.length);
+    setCategoryCount(categories.length);
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    updateCounts();
+    
+    if (value === "products") {
+      toast.info(`You have ${productCount} products in your catalog`);
+    } else if (value === "categories") {
+      toast.info(`You have ${categoryCount} categories configured`);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 to-blue-50">
@@ -20,7 +47,7 @@ const Admin = () => {
         <Tabs 
           defaultValue="products" 
           className="w-full"
-          onValueChange={(value) => setActiveTab(value)}
+          onValueChange={handleTabChange}
         >
           <TabsList className="grid w-full md:w-[400px] grid-cols-2 bg-white/80 border border-purple-200">
             <TabsTrigger 
@@ -28,14 +55,14 @@ const Admin = () => {
               className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white"
             >
               <PanelTop className="mr-2 h-4 w-4" />
-              Products
+              Products {productCount > 0 && `(${productCount})`}
             </TabsTrigger>
             <TabsTrigger 
               value="categories"
               className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white"
             >
               <Layers className="mr-2 h-4 w-4" />
-              Categories
+              Categories {categoryCount > 0 && `(${categoryCount})`}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="products">

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent,
@@ -21,45 +21,36 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Save, X } from "lucide-react";
-
-// Sample data - would come from an API in a real app
-const initialCategories = [
-  {
-    id: 1,
-    name: "Ceiling Cornices",
-    description: "Elegant ceiling trim designs to enhance your room's perimeter.",
-    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6"
-  },
-  {
-    id: 2,
-    name: "Wall Panels",
-    description: "Add texture and dimension to your walls with decorative panels.",
-    image: "https://images.unsplash.com/photo-1600210492493-0946911123ea"
-  },
-  {
-    id: 3,
-    name: "Light Troughs",
-    description: "Create ambient lighting with our recessed ceiling designs.",
-    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d"
-  },
-  {
-    id: 4,
-    name: "Columns & Pillars",
-    description: "Classic and modern column designs for architectural accents.",
-    image: "https://images.unsplash.com/photo-1505796149773-5d216eb9ac6d"
-  }
-];
+import ImageUpload from "./ImageUpload";
+import { toast } from "sonner";
+import { 
+  getCategories, 
+  addCategory, 
+  updateCategory, 
+  deleteCategory,
+  Category
+} from "@/services/dataService";
 
 const CategoriesManagement = () => {
-  const [categories, setCategories] = useState(initialCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingCategory, setEditingCategory] = useState<number | null>(null);
   
-  const [newCategory, setNewCategory] = useState({
+  const [newCategory, setNewCategory] = useState<Omit<Category, "id">>({
     name: "",
     description: "",
     image: ""
   });
+  
+  // Load categories on component mount
+  useEffect(() => {
+    loadCategories();
+  }, []);
+  
+  const loadCategories = () => {
+    const categoryData = getCategories();
+    setCategories(categoryData);
+  };
   
   const handleAddCategory = () => {
     setIsAdding(true);
@@ -73,55 +64,56 @@ const CategoriesManagement = () => {
   const handleSaveCategory = () => {
     // Basic validation
     if (!newCategory.name) {
-      alert("Please enter a category name");
+      toast.error("Please enter a category name");
       return;
     }
     
-    const updatedCategories = [...categories, {
-      id: categories.length + 1,
-      ...newCategory
-    }];
-    
-    setCategories(updatedCategories);
+    addCategory(newCategory);
+    loadCategories(); // Reload the categories list
     setIsAdding(false);
     
-    // Here you would also make an API call to save the category
-    console.log("Category saved:", newCategory);
+    toast.success("Category saved successfully!");
   };
   
   const handleEditCategory = (id: number) => {
     setEditingCategory(id);
     const categoryToEdit = categories.find(c => c.id === id);
     if (categoryToEdit) {
-      setNewCategory({ ...categoryToEdit });
+      setNewCategory({
+        name: categoryToEdit.name,
+        description: categoryToEdit.description,
+        image: categoryToEdit.image
+      });
     }
   };
   
   const handleUpdateCategory = () => {
     // Basic validation
     if (!newCategory.name) {
-      alert("Please enter a category name");
+      toast.error("Please enter a category name");
       return;
     }
     
-    const updatedCategories = categories.map(category => 
-      category.id === editingCategory ? { ...category, ...newCategory } : category
-    );
-    
-    setCategories(updatedCategories);
-    setEditingCategory(null);
-    
-    // Here you would also make an API call to update the category
-    console.log("Category updated:", newCategory);
+    if (editingCategory !== null) {
+      const updatedCategory = {
+        id: editingCategory,
+        ...newCategory
+      };
+      
+      updateCategory(updatedCategory);
+      loadCategories(); // Reload the categories list
+      setEditingCategory(null);
+      
+      toast.success("Category updated successfully!");
+    }
   };
   
   const handleDeleteCategory = (id: number) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
-      const updatedCategories = categories.filter(category => category.id !== id);
-      setCategories(updatedCategories);
+      deleteCategory(id);
+      loadCategories(); // Reload the categories list
       
-      // Here you would also make an API call to delete the category
-      console.log("Category deleted, ID:", id);
+      toast.success("Category deleted successfully!");
     }
   };
   
@@ -133,60 +125,65 @@ const CategoriesManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Categories Management</h2>
-        <Button onClick={handleAddCategory} disabled={isAdding}>
+        <h2 className="text-2xl font-bold text-[#8B5CF6]">Categories Management</h2>
+        <Button 
+          onClick={handleAddCategory} 
+          disabled={isAdding || editingCategory !== null}
+          className="bg-[#9b87f5] hover:bg-[#7E69AB]"
+        >
           <Plus className="mr-2 h-4 w-4" /> Add Category
         </Button>
       </div>
       
       {/* Add/Edit Category Form */}
       {(isAdding || editingCategory !== null) && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{isAdding ? "Add New Category" : "Edit Category"}</CardTitle>
+        <Card className="border-[#9b87f5]/20 shadow-lg bg-white">
+          <CardHeader className="bg-gradient-to-r from-[#9b87f5]/10 to-[#8B5CF6]/10 border-b border-[#9b87f5]/20">
+            <CardTitle className="text-[#8B5CF6]">{isAdding ? "Add New Category" : "Edit Category"}</CardTitle>
             <CardDescription>
               Enter the details for the category below.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Category Name *</Label>
+                <Label htmlFor="name" className="font-medium text-gray-700">Category Name <span className="text-red-500">*</span></Label>
                 <Input 
                   id="name" 
                   value={newCategory.name}
                   onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
                   placeholder="e.g. Wall Panels"
+                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="font-medium text-gray-700">Description</Label>
                 <Textarea 
                   id="description" 
                   value={newCategory.description}
                   onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
                   placeholder="Enter category description here..."
+                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="image">Image URL</Label>
-                <Input 
-                  id="image" 
+                <ImageUpload 
                   value={newCategory.image}
-                  onChange={(e) => setNewCategory({...newCategory, image: e.target.value})}
-                  placeholder="https://example.com/image.jpg"
+                  onChange={(value) => setNewCategory({...newCategory, image: value})}
                 />
-                {/* In a real app, you'd likely have an image upload component here */}
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={handleCancelEdit}>
+          <CardFooter className="flex justify-between border-t border-[#9b87f5]/20 py-4">
+            <Button variant="outline" onClick={handleCancelEdit} className="border-[#9b87f5]/30">
               <X className="mr-2 h-4 w-4" /> Cancel
             </Button>
-            <Button onClick={isAdding ? handleSaveCategory : handleUpdateCategory}>
+            <Button 
+              onClick={isAdding ? handleSaveCategory : handleUpdateCategory}
+              className="bg-[#9b87f5] hover:bg-[#7E69AB]"
+            >
               <Save className="mr-2 h-4 w-4" /> {isAdding ? "Save Category" : "Update Category"}
             </Button>
           </CardFooter>
@@ -194,17 +191,18 @@ const CategoriesManagement = () => {
       )}
       
       {/* Categories Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Categories</CardTitle>
+      <Card className="border-[#9b87f5]/20 shadow-md bg-white">
+        <CardHeader className="bg-gradient-to-r from-[#9b87f5]/10 to-[#8B5CF6]/10 border-b border-[#9b87f5]/20">
+          <CardTitle className="text-[#8B5CF6]">Categories</CardTitle>
           <CardDescription>
             Manage your product categories here.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-gray-50">
               <TableRow>
+                <TableHead className="w-[50px]">Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead className="hidden md:table-cell">Description</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -212,7 +210,22 @@ const CategoriesManagement = () => {
             </TableHeader>
             <TableBody>
               {categories.map((category) => (
-                <TableRow key={category.id}>
+                <TableRow key={category.id} className="hover:bg-[#9b87f5]/5">
+                  <TableCell>
+                    <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
+                      {category.image ? (
+                        <img 
+                          src={category.image} 
+                          alt={category.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                          ?
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell className="hidden md:table-cell">{category.description}</TableCell>
                   <TableCell className="text-right">
@@ -222,6 +235,7 @@ const CategoriesManagement = () => {
                         size="sm"
                         onClick={() => handleEditCategory(category.id)}
                         disabled={isAdding || editingCategory !== null}
+                        className="text-amber-500 hover:text-amber-600 hover:bg-amber-50"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -230,8 +244,9 @@ const CategoriesManagement = () => {
                         size="sm"
                         onClick={() => handleDeleteCategory(category.id)}
                         disabled={isAdding || editingCategory !== null}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
                       >
-                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -239,8 +254,13 @@ const CategoriesManagement = () => {
               ))}
               {categories.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-6">
-                    No categories found. Add your first category.
+                  <TableCell colSpan={4} className="text-center py-6 text-gray-500">
+                    <div className="flex flex-col items-center justify-center py-4">
+                      <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+                        <Plus className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <p>No categories found. Add your first category.</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
