@@ -27,7 +27,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Save, X } from "lucide-react";
+import { 
+  Plus, 
+  Pencil, 
+  Trash2, 
+  Save, 
+  X, 
+  Image as ImageIcon,
+  Tag,
+  Ruler,
+  Info,
+  FileText,
+  CheckCircle2
+} from "lucide-react";
+import ImageUpload from "./ImageUpload";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 // Sample data - would come from an API in a real app
 const initialProducts = [
@@ -76,6 +91,7 @@ const ProductsManagement = () => {
   const [products, setProducts] = useState(initialProducts);
   const [isAdding, setIsAdding] = useState(false);
   const [editingProduct, setEditingProduct] = useState<number | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
   
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -101,7 +117,7 @@ const ProductsManagement = () => {
   const handleSaveProduct = () => {
     // Basic validation
     if (!newProduct.name || !newProduct.category) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
     
@@ -115,6 +131,7 @@ const ProductsManagement = () => {
     
     // Here you would also make an API call to save the product
     console.log("Product saved:", newProduct);
+    toast.success("Product added successfully!");
   };
   
   const handleEditProduct = (id: number) => {
@@ -128,7 +145,7 @@ const ProductsManagement = () => {
   const handleUpdateProduct = () => {
     // Basic validation
     if (!newProduct.name || !newProduct.category) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
     
@@ -141,6 +158,7 @@ const ProductsManagement = () => {
     
     // Here you would also make an API call to update the product
     console.log("Product updated:", newProduct);
+    toast.success("Product updated successfully!");
   };
   
   const handleDeleteProduct = (id: number) => {
@@ -150,6 +168,7 @@ const ProductsManagement = () => {
       
       // Here you would also make an API call to delete the product
       console.log("Product deleted, ID:", id);
+      toast.success("Product deleted successfully!");
     }
   };
   
@@ -157,44 +176,64 @@ const ProductsManagement = () => {
     setEditingProduct(null);
     setIsAdding(false);
   };
+
+  const handleViewProduct = (id: number) => {
+    setSelectedProduct(id);
+  };
   
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Products Management</h2>
-        <Button onClick={handleAddProduct} disabled={isAdding}>
+        <h2 className="text-2xl font-bold text-[#8B5CF6]">Products Management</h2>
+        <Button 
+          onClick={handleAddProduct} 
+          disabled={isAdding}
+          className="bg-[#9b87f5] hover:bg-[#7E69AB]"
+        >
           <Plus className="mr-2 h-4 w-4" /> Add Product
         </Button>
       </div>
       
       {/* Add/Edit Product Form */}
       {(isAdding || editingProduct !== null) && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{isAdding ? "Add New Product" : "Edit Product"}</CardTitle>
+        <Card className="border-[#9b87f5]/20 shadow-lg bg-white">
+          <CardHeader className="bg-gradient-to-r from-[#9b87f5]/10 to-[#8B5CF6]/10 border-b border-[#9b87f5]/20">
+            <CardTitle className="text-[#8B5CF6]">
+              {isAdding ? "Add New Product" : "Edit Product"}
+            </CardTitle>
             <CardDescription>
               Enter the details for the product below.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="space-y-4 pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Product Name *</Label>
+                <Label htmlFor="name" className="flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-[#9b87f5]" />
+                  Product Name <span className="text-red-500">*</span>
+                </Label>
                 <Input 
                   id="name" 
                   value={newProduct.name}
                   onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
                   placeholder="e.g. Classic Ceiling Medallion"
+                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-[#9b87f5]" />
+                  Category <span className="text-red-500">*</span>
+                </Label>
                 <Select 
                   value={newProduct.category}
                   onValueChange={(value) => setNewProduct({...newProduct, category: value})}
                 >
-                  <SelectTrigger id="category">
+                  <SelectTrigger 
+                    id="category"
+                    className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
+                  >
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -208,52 +247,63 @@ const ProductsManagement = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="dimensions">Dimensions</Label>
+                <Label htmlFor="dimensions" className="flex items-center gap-2">
+                  <Ruler className="h-4 w-4 text-[#9b87f5]" />
+                  Dimensions
+                </Label>
                 <Input 
                   id="dimensions" 
                   value={newProduct.dimensions}
                   onChange={(e) => setNewProduct({...newProduct, dimensions: e.target.value})}
                   placeholder="e.g. 60cm diameter"
+                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="useCase">Use Cases</Label>
+                <Label htmlFor="useCase" className="flex items-center gap-2">
+                  <Info className="h-4 w-4 text-[#9b87f5]" />
+                  Use Cases
+                </Label>
                 <Input 
                   id="useCase" 
                   value={newProduct.useCase}
                   onChange={(e) => setNewProduct({...newProduct, useCase: e.target.value})}
                   placeholder="e.g. Living Rooms, Dining Rooms"
+                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
                 />
               </div>
               
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-[#9b87f5]" />
+                  Description
+                </Label>
                 <Textarea 
                   id="description" 
                   value={newProduct.description}
                   onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
                   placeholder="Enter product description here..."
+                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
                 />
               </div>
               
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="image">Image URL</Label>
-                <Input 
-                  id="image" 
+                <ImageUpload 
                   value={newProduct.image}
-                  onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
-                  placeholder="https://example.com/image.jpg"
+                  onChange={(value) => setNewProduct({...newProduct, image: value})}
                 />
-                {/* In a real app, you'd likely have an image upload component here */}
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={handleCancelEdit}>
+          <CardFooter className="flex justify-between border-t border-[#9b87f5]/20 py-4">
+            <Button variant="outline" onClick={handleCancelEdit} className="border-[#9b87f5]/30">
               <X className="mr-2 h-4 w-4" /> Cancel
             </Button>
-            <Button onClick={isAdding ? handleSaveProduct : handleUpdateProduct}>
+            <Button 
+              onClick={isAdding ? handleSaveProduct : handleUpdateProduct}
+              className="bg-[#9b87f5] hover:bg-[#7E69AB]"
+            >
               <Save className="mr-2 h-4 w-4" /> {isAdding ? "Save Product" : "Update Product"}
             </Button>
           </CardFooter>
@@ -261,17 +311,18 @@ const ProductsManagement = () => {
       )}
       
       {/* Products Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Products</CardTitle>
+      <Card className="border-[#9b87f5]/20 shadow-md bg-white">
+        <CardHeader className="bg-gradient-to-r from-[#9b87f5]/10 to-[#8B5CF6]/10 border-b border-[#9b87f5]/20">
+          <CardTitle className="text-[#8B5CF6]">Products</CardTitle>
           <CardDescription>
             Manage your product catalog here.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-gray-50">
               <TableRow>
+                <TableHead className="w-[50px]">Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Dimensions</TableHead>
@@ -281,18 +332,89 @@ const ProductsManagement = () => {
             </TableHeader>
             <TableBody>
               {products.map((product) => (
-                <TableRow key={product.id}>
+                <TableRow key={product.id} className="hover:bg-[#9b87f5]/5">
+                  <TableCell>
+                    <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
+                      {product.image ? (
+                        <img 
+                          src={product.image} 
+                          alt={product.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <ImageIcon className="h-5 w-5 text-gray-400" />
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>{product.category}</TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center rounded-full bg-[#9b87f5]/10 px-2 py-1 text-xs font-medium text-[#8B5CF6]">
+                      {product.category}
+                    </span>
+                  </TableCell>
                   <TableCell>{product.dimensions}</TableCell>
                   <TableCell className="hidden md:table-cell">{product.useCase}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-[#8B5CF6] hover:text-[#7E69AB] hover:bg-[#9b87f5]/10"
+                            onClick={() => handleViewProduct(product.id)}
+                          >
+                            <Info className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle className="text-[#8B5CF6]">{product.name}</DialogTitle>
+                            <DialogDescription>Product Details</DialogDescription>
+                          </DialogHeader>
+                          <div className="py-4 space-y-4">
+                            {product.image && (
+                              <div className="aspect-video w-full overflow-hidden rounded-md border">
+                                <img 
+                                  src={product.image} 
+                                  alt={product.name} 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="space-y-2">
+                              <p className="text-sm font-semibold flex items-center gap-2">
+                                <Tag className="h-4 w-4 text-[#9b87f5]" /> Category
+                              </p>
+                              <p className="text-sm text-gray-500">{product.category}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <p className="text-sm font-semibold flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-[#9b87f5]" /> Description
+                              </p>
+                              <p className="text-sm text-gray-500">{product.description}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <p className="text-sm font-semibold flex items-center gap-2">
+                                <Ruler className="h-4 w-4 text-[#9b87f5]" /> Dimensions
+                              </p>
+                              <p className="text-sm text-gray-500">{product.dimensions}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <p className="text-sm font-semibold flex items-center gap-2">
+                                <Info className="h-4 w-4 text-[#9b87f5]" /> Use Cases
+                              </p>
+                              <p className="text-sm text-gray-500">{product.useCase}</p>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => handleEditProduct(product.id)}
                         disabled={isAdding || editingProduct !== null}
+                        className="text-amber-500 hover:text-amber-600 hover:bg-amber-50"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -301,8 +423,9 @@ const ProductsManagement = () => {
                         size="sm"
                         onClick={() => handleDeleteProduct(product.id)}
                         disabled={isAdding || editingProduct !== null}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
                       >
-                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -310,8 +433,11 @@ const ProductsManagement = () => {
               ))}
               {products.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-6">
-                    No products found. Add your first product.
+                  <TableCell colSpan={6} className="text-center py-10 text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <ImageIcon className="h-10 w-10 text-gray-300 mb-2" />
+                      <p>No products found. Add your first product.</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
