@@ -118,6 +118,11 @@ export const getProducts = (): Product[] => {
   return initializeData<Product>(PRODUCTS_STORAGE_KEY, initialProducts);
 };
 
+export const getProductById = (id: number): Product | null => {
+  const products = getProducts();
+  return products.find(product => product.id === id) || null;
+};
+
 export const getFeaturedProducts = (): Product[] => {
   const products = getProducts();
   return products.filter(product => product.isFeatured);
@@ -144,6 +149,11 @@ export const addProduct = (product: Omit<Product, "id">): Product => {
 };
 
 export const updateProduct = (product: Product): Product => {
+  // Ensure a product can't be both featured and new arrival
+  if (product.isFeatured && product.isNewArrival) {
+    product.isNewArrival = false;
+  }
+  
   const products = getProducts();
   const updatedProducts = products.map(p => 
     p.id === product.id ? product : p

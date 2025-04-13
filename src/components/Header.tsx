@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
@@ -42,7 +41,6 @@ const Header = () => {
   const location = useLocation();
   const searchInputRef = useRef<HTMLInputElement>(null);
   
-  // Handle search command dialog
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -55,7 +53,6 @@ const Header = () => {
     return () => document.removeEventListener("keydown", down);
   }, []);
   
-  // Close search dialog when route changes
   useEffect(() => {
     setIsSearchOpen(false);
   }, [location.pathname]);
@@ -89,7 +86,6 @@ const Header = () => {
   const scrollToSection = (sectionId: string) => {
     setIsMenuOpen(false);
     
-    // If we're not on the home page, navigate there first then scroll
     if (location.pathname !== "/") {
       navigate(`/?section=${sectionId}`);
       return;
@@ -111,7 +107,6 @@ const Header = () => {
   };
   
   useEffect(() => {
-    // Check if we have a section to scroll to after navigation
     if (location.pathname === "/" && location.search) {
       const section = new URLSearchParams(location.search).get('section');
       if (section) {
@@ -124,6 +119,12 @@ const Header = () => {
       }
     }
   }, [location]);
+
+  const handleProductSelect = (productId: number) => {
+    navigate(`/product/${productId}`);
+    setIsSearchOpen(false);
+    setSearchQuery("");
+  };
 
   const NavLink = ({ to, onClick, children }: { to?: string; onClick?: () => void; children: React.ReactNode }) => (
     <motion.div
@@ -150,25 +151,23 @@ const Header = () => {
   );
   
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className="bg-black text-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <div 
             onClick={navigateToHome} 
-            className="text-2xl font-bold text-gray-800 cursor-pointer"
+            className="text-2xl font-bold text-white cursor-pointer"
           >
-            Gypsum<span className="text-black">Carnis</span>
+            Gypsum<span className="text-white">Carnis</span>
           </div>
           
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             <NavLink onClick={navigateToHome}>Home</NavLink>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <motion.button 
-                  className="flex items-center text-gray-700 hover:text-black font-medium"
+                  className="flex items-center text-white hover:text-gray-300 font-medium"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}
@@ -185,7 +184,7 @@ const Header = () => {
                   >
                     <DropdownMenuItem 
                       onClick={() => navigateToCategory(category)}
-                      className="cursor-pointer"
+                      className="cursor-pointer text-black"
                     >
                       {category}
                     </DropdownMenuItem>
@@ -204,7 +203,7 @@ const Header = () => {
               href="https://wa.me/1234567890" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-700 hover:text-black font-medium"
+              className="text-white hover:text-gray-300 font-medium"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
@@ -213,33 +212,31 @@ const Header = () => {
             </motion.a>
           </nav>
           
-          {/* Search Button (Desktop) */}
           <div className="hidden md:flex items-center">
             <Button 
               variant="outline" 
-              className="relative h-9 px-4 text-sm text-muted-foreground border-gray-200 hover:bg-gray-100"
+              className="relative h-9 px-4 text-sm border-white text-white hover:bg-white/10"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-4 w-4 mr-2" />
               <span>Search products...</span>
-              <kbd className="ml-3 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+              <kbd className="ml-3 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-black/20 px-1.5 font-mono text-[10px] font-medium opacity-100">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </Button>
           </div>
           
-          {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-4">
             <motion.button
               onClick={() => setIsSearchOpen(true)}
-              className="text-gray-700 hover:text-black focus:outline-none"
+              className="text-white hover:text-gray-300 focus:outline-none"
               whileTap={{ scale: 0.95 }}
             >
               <Search className="h-5 w-5" />
             </motion.button>
             <motion.button
               onClick={toggleMenu}
-              className="text-gray-700 hover:text-black focus:outline-none"
+              className="text-white hover:text-gray-300 focus:outline-none"
               whileTap={{ scale: 0.95 }}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -247,11 +244,10 @@ const Header = () => {
           </div>
         </div>
         
-        {/* Mobile Menu */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div 
-              className="md:hidden mt-4 py-4 bg-white border-t"
+              className="md:hidden mt-4 py-4 bg-black border-t border-white/20"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -260,19 +256,19 @@ const Header = () => {
               <nav className="flex flex-col space-y-4">
                 <button 
                   onClick={navigateToHome} 
-                  className="text-left text-gray-700 hover:text-black font-medium px-4 py-2"
+                  className="text-left text-white hover:text-gray-300 font-medium px-4 py-2"
                 >
                   Home
                 </button>
                 
                 <div className="px-4">
-                  <p className="font-medium text-gray-700 mb-2">Categories</p>
+                  <p className="font-medium text-white mb-2">Categories</p>
                   <div className="ml-4 flex flex-col space-y-2">
                     {categories.map((category) => (
                       <motion.button 
                         key={category}
                         onClick={() => navigateToCategory(category)}
-                        className="text-left text-gray-600 hover:text-black flex items-center"
+                        className="text-left text-gray-300 hover:text-white flex items-center"
                         whileHover={{ x: 5 }}
                         transition={{ duration: 0.2 }}
                       >
@@ -285,21 +281,21 @@ const Header = () => {
                 
                 <button 
                   onClick={() => scrollToSection("featured")} 
-                  className="text-left text-gray-700 hover:text-black font-medium px-4 py-2"
+                  className="text-left text-white hover:text-gray-300 font-medium px-4 py-2"
                 >
                   Featured
                 </button>
                 
                 <button 
                   onClick={() => scrollToSection("new-arrivals")}
-                  className="text-left text-gray-700 hover:text-black font-medium px-4 py-2"
+                  className="text-left text-white hover:text-gray-300 font-medium px-4 py-2"
                 >
                   New Arrivals
                 </button>
                 
                 <Link
                   to="/about"
-                  className="text-left text-gray-700 hover:text-black font-medium px-4 py-2"
+                  className="text-left text-white hover:text-gray-300 font-medium px-4 py-2"
                 >
                   About
                 </Link>
@@ -308,7 +304,7 @@ const Header = () => {
                   href="https://wa.me/1234567890" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-700 hover:text-black font-medium px-4 py-2 flex items-center"
+                  className="text-white hover:text-gray-300 font-medium px-4 py-2 flex items-center"
                 >
                   Contact
                 </a>
@@ -318,7 +314,6 @@ const Header = () => {
         </AnimatePresence>
       </div>
       
-      {/* Search Command Dialog */}
       <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
         <form onSubmit={handleSearch}>
           <CommandInput 
@@ -357,12 +352,8 @@ const Header = () => {
               {searchResults.map((product) => (
                 <CommandItem
                   key={product.id}
-                  onSelect={() => {
-                    navigate(`/?product=${product.id}`);
-                    setIsSearchOpen(false);
-                    setSearchQuery("");
-                  }}
-                  className="flex items-center py-2"
+                  onSelect={() => handleProductSelect(product.id)}
+                  className="flex items-center py-2 cursor-pointer"
                 >
                   {product.image && (
                     <img 

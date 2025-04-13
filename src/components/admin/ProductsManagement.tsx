@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -72,12 +71,6 @@ const ProductsManagement = () => {
     isNewArrival: false
   });
   
-  // Load products and categories on component mount
-  useEffect(() => {
-    loadProducts();
-    loadCategories();
-  }, []);
-  
   const loadProducts = () => {
     const productData = getProducts();
     setProducts(productData);
@@ -103,14 +96,13 @@ const ProductsManagement = () => {
   };
   
   const handleSaveProduct = () => {
-    // Basic validation
     if (!newProduct.name || !newProduct.category) {
       toast.error("Please fill in all required fields");
       return;
     }
     
     addProduct(newProduct);
-    loadProducts(); // Reload the products list
+    loadProducts();
     setIsAdding(false);
     
     toast.success("Product added successfully!");
@@ -134,7 +126,6 @@ const ProductsManagement = () => {
   };
   
   const handleUpdateProduct = () => {
-    // Basic validation
     if (!newProduct.name || !newProduct.category) {
       toast.error("Please fill in all required fields");
       return;
@@ -147,7 +138,7 @@ const ProductsManagement = () => {
       };
       
       updateProduct(updatedProduct);
-      loadProducts(); // Reload the products list
+      loadProducts();
       setEditingProduct(null);
       
       toast.success("Product updated successfully!");
@@ -157,7 +148,7 @@ const ProductsManagement = () => {
   const handleDeleteProduct = (id: number) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       deleteProduct(id);
-      loadProducts(); // Reload the products list
+      loadProducts();
       
       toast.success("Product deleted successfully!");
     }
@@ -172,24 +163,51 @@ const ProductsManagement = () => {
     setSelectedProduct(id);
   };
   
+  const handleStatusChange = (statusType: 'isFeatured' | 'isNewArrival', checked: boolean) => {
+    if (checked) {
+      if (statusType === 'isFeatured') {
+        setNewProduct({
+          ...newProduct, 
+          isFeatured: true,
+          isNewArrival: false
+        });
+      } else {
+        setNewProduct({
+          ...newProduct, 
+          isFeatured: false,
+          isNewArrival: true
+        });
+      }
+    } else {
+      setNewProduct({
+        ...newProduct,
+        [statusType]: false
+      });
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+    loadCategories();
+  }, []);
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-[#8B5CF6]">Products Management</h2>
+        <h2 className="text-2xl font-bold text-black">Products Management</h2>
         <Button 
           onClick={handleAddProduct} 
           disabled={isAdding}
-          className="bg-[#9b87f5] hover:bg-[#7E69AB]"
+          className="bg-black hover:bg-black/80 text-white"
         >
           <Plus className="mr-2 h-4 w-4" /> Add Product
         </Button>
       </div>
       
-      {/* Add/Edit Product Form */}
       {(isAdding || editingProduct !== null) && (
-        <Card className="border-[#9b87f5]/20 shadow-lg bg-white">
-          <CardHeader className="bg-gradient-to-r from-[#9b87f5]/10 to-[#8B5CF6]/10 border-b border-[#9b87f5]/20">
-            <CardTitle className="text-[#8B5CF6]">
+        <Card className="border-black/20 shadow-lg bg-white">
+          <CardHeader className="bg-black/5 border-b border-black/20">
+            <CardTitle className="text-black">
               {isAdding ? "Add New Product" : "Edit Product"}
             </CardTitle>
             <CardDescription>
@@ -200,7 +218,7 @@ const ProductsManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name" className="flex items-center gap-2">
-                  <Tag className="h-4 w-4 text-[#9b87f5]" />
+                  <Tag className="h-4 w-4 text-black" />
                   Product Name <span className="text-red-500">*</span>
                 </Label>
                 <Input 
@@ -208,13 +226,13 @@ const ProductsManagement = () => {
                   value={newProduct.name}
                   onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
                   placeholder="e.g. Classic Ceiling Medallion"
-                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
+                  className="border-black/30 focus-visible:ring-black"
                 />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="category" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-[#9b87f5]" />
+                  <FileText className="h-4 w-4 text-black" />
                   Category <span className="text-red-500">*</span>
                 </Label>
                 <Select 
@@ -223,7 +241,7 @@ const ProductsManagement = () => {
                 >
                   <SelectTrigger 
                     id="category"
-                    className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
+                    className="border-black/30 focus-visible:ring-black"
                   >
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
@@ -239,7 +257,7 @@ const ProductsManagement = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="dimensions" className="flex items-center gap-2">
-                  <Ruler className="h-4 w-4 text-[#9b87f5]" />
+                  <Ruler className="h-4 w-4 text-black" />
                   Dimensions
                 </Label>
                 <Input 
@@ -247,13 +265,13 @@ const ProductsManagement = () => {
                   value={newProduct.dimensions}
                   onChange={(e) => setNewProduct({...newProduct, dimensions: e.target.value})}
                   placeholder="e.g. 60cm diameter"
-                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
+                  className="border-black/30 focus-visible:ring-black"
                 />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="useCase" className="flex items-center gap-2">
-                  <Info className="h-4 w-4 text-[#9b87f5]" />
+                  <Info className="h-4 w-4 text-black" />
                   Use Cases
                 </Label>
                 <Input 
@@ -261,13 +279,13 @@ const ProductsManagement = () => {
                   value={newProduct.useCase}
                   onChange={(e) => setNewProduct({...newProduct, useCase: e.target.value})}
                   placeholder="e.g. Living Rooms, Dining Rooms"
-                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
+                  className="border-black/30 focus-visible:ring-black"
                 />
               </div>
               
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="description" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-[#9b87f5]" />
+                  <FileText className="h-4 w-4 text-black" />
                   Description
                 </Label>
                 <Textarea 
@@ -275,36 +293,41 @@ const ProductsManagement = () => {
                   value={newProduct.description}
                   onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
                   placeholder="Enter product description here..."
-                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
+                  className="border-black/30 focus-visible:ring-black"
                 />
               </div>
               
               <div className="space-y-3">
                 <Label className="flex items-center gap-2">
-                  <Star className="h-4 w-4 text-[#9b87f5]" />
+                  <Star className="h-4 w-4 text-black" />
                   Product Status
                 </Label>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="isFeatured"
-                    checked={newProduct.isFeatured}
-                    onCheckedChange={(checked) => setNewProduct({...newProduct, isFeatured: checked === true})}
-                    className="border-[#9b87f5]/30 data-[state=checked]:bg-[#9b87f5]"
-                  />
-                  <Label htmlFor="isFeatured" className="text-sm cursor-pointer">
-                    Featured Product
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="isNewArrival"
-                    checked={newProduct.isNewArrival}
-                    onCheckedChange={(checked) => setNewProduct({...newProduct, isNewArrival: checked === true})}
-                    className="border-[#9b87f5]/30 data-[state=checked]:bg-[#9b87f5]"
-                  />
-                  <Label htmlFor="isNewArrival" className="text-sm cursor-pointer">
-                    New Arrival
-                  </Label>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="isFeatured"
+                      checked={newProduct.isFeatured}
+                      onCheckedChange={(checked) => handleStatusChange('isFeatured', checked === true)}
+                      className="border-black/30 data-[state=checked]:bg-black"
+                    />
+                    <Label htmlFor="isFeatured" className="text-sm cursor-pointer">
+                      Featured Product
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="isNewArrival"
+                      checked={newProduct.isNewArrival}
+                      onCheckedChange={(checked) => handleStatusChange('isNewArrival', checked === true)}
+                      className="border-black/30 data-[state=checked]:bg-black"
+                    />
+                    <Label htmlFor="isNewArrival" className="text-sm cursor-pointer">
+                      New Arrival
+                    </Label>
+                  </div>
+                  <p className="text-xs text-gray-500 italic mt-1">
+                    Note: A product can be either Featured or New Arrival, not both at the same time.
+                  </p>
                 </div>
               </div>
               
@@ -316,13 +339,13 @@ const ProductsManagement = () => {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between border-t border-[#9b87f5]/20 py-4">
-            <Button variant="outline" onClick={handleCancelEdit} className="border-[#9b87f5]/30">
+          <CardFooter className="flex justify-between border-t border-black/20 py-4">
+            <Button variant="outline" onClick={handleCancelEdit} className="border-black/30">
               <X className="mr-2 h-4 w-4" /> Cancel
             </Button>
             <Button 
               onClick={isAdding ? handleSaveProduct : handleUpdateProduct}
-              className="bg-[#9b87f5] hover:bg-[#7E69AB]"
+              className="bg-black hover:bg-black/80 text-white"
             >
               <Save className="mr-2 h-4 w-4" /> {isAdding ? "Save Product" : "Update Product"}
             </Button>
@@ -330,10 +353,9 @@ const ProductsManagement = () => {
         </Card>
       )}
       
-      {/* Products Table */}
-      <Card className="border-[#9b87f5]/20 shadow-md bg-white">
-        <CardHeader className="bg-gradient-to-r from-[#9b87f5]/10 to-[#8B5CF6]/10 border-b border-[#9b87f5]/20">
-          <CardTitle className="text-[#8B5CF6]">Products</CardTitle>
+      <Card className="border-black/20 shadow-md bg-white">
+        <CardHeader className="bg-black/5 border-b border-black/20">
+          <CardTitle className="text-black">Products</CardTitle>
           <CardDescription>
             Manage your product catalog here.
           </CardDescription>
@@ -352,7 +374,7 @@ const ProductsManagement = () => {
             </TableHeader>
             <TableBody>
               {products.map((product) => (
-                <TableRow key={product.id} className="hover:bg-[#9b87f5]/5">
+                <TableRow key={product.id} className="hover:bg-black/5">
                   <TableCell>
                     <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
                       {product.image ? (
@@ -368,19 +390,19 @@ const ProductsManagement = () => {
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center rounded-full bg-[#9b87f5]/10 px-2 py-1 text-xs font-medium text-[#8B5CF6]">
+                    <span className="inline-flex items-center rounded-full bg-black/10 px-2 py-1 text-xs font-medium text-black">
                       {product.category}
                     </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">
                       {product.isFeatured && (
-                        <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
+                        <span className="inline-flex items-center rounded-full bg-black/10 px-2 py-1 text-xs font-medium text-black">
                           <Star className="h-3 w-3 mr-1" /> Featured
                         </span>
                       )}
                       {product.isNewArrival && (
-                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700">
+                        <span className="inline-flex items-center rounded-full bg-black/10 px-2 py-1 text-xs font-medium text-black">
                           <Clock className="h-3 w-3 mr-1" /> New Arrival
                         </span>
                       )}
@@ -394,7 +416,7 @@ const ProductsManagement = () => {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            className="text-[#8B5CF6] hover:text-[#7E69AB] hover:bg-[#9b87f5]/10"
+                            className="text-black hover:text-black hover:bg-black/10"
                             onClick={() => handleViewProduct(product.id)}
                           >
                             <Info className="h-4 w-4" />
@@ -402,7 +424,7 @@ const ProductsManagement = () => {
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                           <DialogHeader>
-                            <DialogTitle className="text-[#8B5CF6]">{product.name}</DialogTitle>
+                            <DialogTitle className="text-black">{product.name}</DialogTitle>
                             <DialogDescription>Product Details</DialogDescription>
                           </DialogHeader>
                           <div className="py-4 space-y-4">
@@ -417,37 +439,37 @@ const ProductsManagement = () => {
                             )}
                             <div className="flex flex-wrap gap-2 mb-4">
                               {product.isFeatured && (
-                                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
+                                <span className="inline-flex items-center rounded-full bg-black/10 px-2 py-1 text-xs font-medium text-black">
                                   <Star className="h-3 w-3 mr-1" /> Featured
                                 </span>
                               )}
                               {product.isNewArrival && (
-                                <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700">
+                                <span className="inline-flex items-center rounded-full bg-black/10 px-2 py-1 text-xs font-medium text-black">
                                   <Clock className="h-3 w-3 mr-1" /> New Arrival
                                 </span>
                               )}
                             </div>
                             <div className="space-y-2">
                               <p className="text-sm font-semibold flex items-center gap-2">
-                                <Tag className="h-4 w-4 text-[#9b87f5]" /> Category
+                                <Tag className="h-4 w-4 text-black" /> Category
                               </p>
                               <p className="text-sm text-gray-500">{product.category}</p>
                             </div>
                             <div className="space-y-2">
                               <p className="text-sm font-semibold flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-[#9b87f5]" /> Description
+                                <FileText className="h-4 w-4 text-black" /> Description
                               </p>
                               <p className="text-sm text-gray-500">{product.description}</p>
                             </div>
                             <div className="space-y-2">
                               <p className="text-sm font-semibold flex items-center gap-2">
-                                <Ruler className="h-4 w-4 text-[#9b87f5]" /> Dimensions
+                                <Ruler className="h-4 w-4 text-black" /> Dimensions
                               </p>
                               <p className="text-sm text-gray-500">{product.dimensions}</p>
                             </div>
                             <div className="space-y-2">
                               <p className="text-sm font-semibold flex items-center gap-2">
-                                <Info className="h-4 w-4 text-[#9b87f5]" /> Use Cases
+                                <Info className="h-4 w-4 text-black" /> Use Cases
                               </p>
                               <p className="text-sm text-gray-500">{product.useCase}</p>
                             </div>

@@ -85,18 +85,18 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
             <ul className="space-y-4">
-              <li className="flex items-center">
-                <Phone className="h-5 w-5 text-white mr-3 flex-shrink-0" />
+              <li className="flex items-start">
+                <Phone className="h-5 w-5 text-white mr-3 flex-shrink-0 mt-0.5" />
                 <span className="text-gray-300">+1 (234) 567-8900</span>
               </li>
-              <li className="flex items-center">
-                <Mail className="h-5 w-5 text-white mr-3 flex-shrink-0" />
+              <li className="flex items-start">
+                <Mail className="h-5 w-5 text-white mr-3 flex-shrink-0 mt-0.5" />
                 <a href="mailto:info@gypsumcarnis.com" className="text-gray-300 hover:text-white">
                   info@gypsumcarnis.com
                 </a>
               </li>
-              <li className="flex items-center">
-                <MapPin className="h-5 w-5 text-white mr-3 flex-shrink-0" />
+              <li className="flex items-start">
+                <MapPin className="h-5 w-5 text-white mr-3 flex-shrink-0 mt-0.5" />
                 <span className="text-gray-300">
                   123 Design Street, Creative District, City, Country
                 </span>
@@ -107,7 +107,7 @@ const Footer = () => {
           {/* Shop Map Location */}
           <div>
             <h3 className="text-xl font-semibold mb-4">Find Us</h3>
-            <div className="h-48 bg-gray-800 rounded-md overflow-hidden">
+            <div className="h-48 bg-white/10 rounded-md overflow-hidden">
               {/* This would be replaced with an actual Google Map */}
               <div className="w-full h-full flex items-center justify-center">
                 <MapPin className="h-6 w-6 text-white mr-2" />
@@ -118,7 +118,7 @@ const Footer = () => {
         </div>
         
         {/* Copyright */}
-        <div className="mt-12 pt-6 border-t border-gray-800 text-center text-gray-400">
+        <div className="mt-12 pt-6 border-t border-white/20 text-center text-gray-400">
           <p>© {currentYear} Gypsum Carnis Interiors. All rights reserved.</p>
         </div>
       </div>

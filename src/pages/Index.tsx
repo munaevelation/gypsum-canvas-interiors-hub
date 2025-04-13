@@ -6,23 +6,90 @@ import Hero from "@/components/Hero";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import NewArrivals from "@/components/NewArrivals";
 import Categories from "@/components/Categories";
-import { useSearchParams, useLocation } from "react-router-dom";
-import { getProducts, Product } from "@/services/dataService";
+import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
+import { getProducts, getProductById, Product } from "@/services/dataService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Ruler, Tag, ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Letter Animation Component
+const AnimatedText = ({ text, className = "" }: { text: string; className?: string }) => {
+  // Animation variants for the container
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  // Animation variants for each letter
+  const letterVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 20,
+      rotateY: 90
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      rotateY: 0,
+      transition: {
+        type: "spring",
+        damping: 10,
+        stiffness: 100
+      }
+    }
+  };
+
+  return (
+    <motion.h1
+      className={`text-center text-5xl font-bold mb-8 ${className}`}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {text.split("").map((char, index) => (
+        <motion.span
+          key={index}
+          className="inline-block"
+          variants={letterVariants}
+        >
+          {char === " " ? "\u00A0" : char}
+        </motion.span>
+      ))}
+    </motion.h1>
+  );
+};
+
 const Index = () => {
   const [searchParams] = useSearchParams();
   const activeCategory = searchParams.get("category") || null;
+  const productParam = searchParams.get("product") || null;
   const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(true);
   
   // Refs for scroll sections
   const featuredRef = useRef<HTMLElement>(null);
   const newArrivalsRef = useRef<HTMLElement>(null);
+  
+  // Check for direct product navigation
+  useEffect(() => {
+    if (productParam) {
+      const product = getProductById(parseInt(productParam, 10));
+      if (product) {
+        navigate(`/product/${productParam}`);
+      }
+    }
+  }, [productParam, navigate]);
   
   useEffect(() => {
     if (activeCategory) {
@@ -32,6 +99,13 @@ const Index = () => {
       );
       setCategoryProducts(filtered);
     }
+    
+    // Hide welcome animation after 4 seconds
+    const timer = setTimeout(() => {
+      setShowWelcomeAnimation(false);
+    }, 3000);
+    
+    return () => clearTimeout(timer);
   }, [activeCategory]);
   
   // Handle section scroll from URL parameters
@@ -66,13 +140,38 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white text-black">
       <Header />
+      
+      <AnimatePresence>
+        {showWelcomeAnimation && (
+          <motion.div 
+            className="fixed inset-0 flex items-center justify-center bg-black z-50"
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <AnimatedText text="Welcome to Gypsum Carnis" className="text-white" />
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <main className="flex-grow">
         {!activeCategory && (
           <>
             <Hero />
+            <div className="py-16 px-4 bg-white">
+              <div className="container mx-auto">
+                <AnimatedText text="Premium Interior Solutions" className="text-black" />
+                <motion.p 
+                  className="text-center text-lg text-gray-600 max-w-2xl mx-auto"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2, duration: 0.8 }}
+                >
+                  Discover our exquisite collection of gypsum designs that transform ordinary spaces into extraordinary experiences.
+                </motion.p>
+              </div>
+            </div>
             <Categories />
             <FeaturedProducts />
             <NewArrivals />
@@ -82,7 +181,7 @@ const Index = () => {
         {activeCategory && (
           <div className="container mx-auto px-4 py-12">
             <div className="mb-12">
-              <h2 className="text-4xl font-bold mb-3 text-[#8B5CF6]">{activeCategory}</h2>
+              <h2 className="text-4xl font-bold mb-3 text-black">{activeCategory}</h2>
               <p className="text-gray-600">Browse our collection of {activeCategory.toLowerCase()}</p>
             </div>
             
@@ -91,33 +190,29 @@ const Index = () => {
                 {categoryProducts.map((product) => (
                   <Card 
                     key={product.id}
-                    className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col"
+                    className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col border-black/10"
+                    onClick={() => navigate(`/product/${product.id}`)}
                   >
-                    <div className="h-48 overflow-hidden relative">
+                    <div className="h-48 overflow-hidden relative cursor-pointer">
                       <img 
                         src={product.image} 
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       />
                       {product.isFeatured && (
-                        <Badge className="absolute top-2 right-2 bg-primary">
+                        <Badge className="absolute top-2 right-2 bg-black text-white">
                           Featured
                         </Badge>
                       )}
                       {product.isNewArrival && (
-                        <Badge className="absolute top-2 right-2 bg-emerald-500">
-                          New
-                        </Badge>
-                      )}
-                      {product.isFeatured && product.isNewArrival && (
-                        <Badge className="absolute top-10 right-2 bg-emerald-500">
+                        <Badge className="absolute top-2 right-2 bg-black text-white">
                           New
                         </Badge>
                       )}
                     </div>
                     <CardContent className="p-4 flex-grow flex flex-col">
                       <div className="mb-2 flex items-center space-x-2">
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs border-black text-black">
                           {product.category}
                         </Badge>
                       </div>
@@ -155,7 +250,7 @@ const Index = () => {
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{ duration: 0.3 }}
               onClick={scrollToTop}
-              className="fixed right-6 bottom-6 bg-black text-white rounded-full p-3 shadow-lg hover:bg-gray-800 focus:outline-none z-30"
+              className="fixed right-6 bottom-6 bg-black text-white rounded-full p-3 shadow-lg hover:bg-black/80 focus:outline-none z-30"
               aria-label="Back to top"
             >
               <ArrowUp className="h-6 w-6" />
