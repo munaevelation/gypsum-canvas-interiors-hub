@@ -64,10 +64,8 @@ const Header = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       const results = searchProducts(searchQuery);
-      if (results.length > 0) {
-        setSearchResults(results);
-        setIsSearchOpen(true);
-      } else {
+      setSearchResults(results);
+      if (results.length === 0) {
         toast.info("No products found matching your search");
       }
     }
@@ -87,7 +85,7 @@ const Header = () => {
     
     // If we're not on the home page, navigate there first then scroll
     if (location.pathname !== "/") {
-      navigate("/", { state: { scrollTo: sectionId } });
+      navigate(`/?section=${sectionId}`);
       return;
     }
     
@@ -97,16 +95,27 @@ const Header = () => {
     }
   };
   
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setIsMenuOpen(false);
+  };
+  
+  const reloadPage = () => {
+    window.location.reload();
+  };
+  
   useEffect(() => {
     // Check if we have a section to scroll to after navigation
-    if (location.pathname === "/" && location.state && (location.state as any).scrollTo) {
-      const sectionId = (location.state as any).scrollTo;
-      setTimeout(() => {
-        const section = document.getElementById(sectionId);
-        if (section) {
-          section.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 100); // Small delay to ensure the page is rendered
+    if (location.pathname === "/" && location.search) {
+      const section = new URLSearchParams(location.search).get('section');
+      if (section) {
+        setTimeout(() => {
+          const sectionElement = document.getElementById(section);
+          if (sectionElement) {
+            sectionElement.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      }
     }
   }, [location]);
 
@@ -119,14 +128,14 @@ const Header = () => {
       {to ? (
         <Link 
           to={to} 
-          className="text-gray-700 hover:text-primary font-medium"
+          className="text-gray-700 hover:text-black font-medium"
         >
           {children}
         </Link>
       ) : (
         <button 
           onClick={onClick}
-          className="text-gray-700 hover:text-primary font-medium"
+          className="text-gray-700 hover:text-black font-medium"
         >
           {children}
         </button>
@@ -139,18 +148,18 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="text-2xl font-bold text-gray-800">
-            Gypsum<span className="text-primary">Carnis</span>
+          <Link to="/" onClick={reloadPage} className="text-2xl font-bold text-gray-800">
+            Gypsum<span className="text-black">Carnis</span>
           </Link>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <NavLink to="/">Home</NavLink>
+            <NavLink onClick={scrollToTop}>Home</NavLink>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <motion.button 
-                  className="flex items-center text-gray-700 hover:text-primary font-medium"
+                  className="flex items-center text-gray-700 hover:text-black font-medium"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}
@@ -184,7 +193,7 @@ const Header = () => {
               href="https://wa.me/1234567890" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-700 hover:text-primary font-medium"
+              className="text-gray-700 hover:text-black font-medium"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
@@ -212,14 +221,14 @@ const Header = () => {
           <div className="flex md:hidden items-center space-x-4">
             <motion.button
               onClick={() => setIsSearchOpen(true)}
-              className="text-gray-700 hover:text-primary focus:outline-none"
+              className="text-gray-700 hover:text-black focus:outline-none"
               whileTap={{ scale: 0.95 }}
             >
               <Search className="h-5 w-5" />
             </motion.button>
             <motion.button
               onClick={toggleMenu}
-              className="text-gray-700 hover:text-primary focus:outline-none"
+              className="text-gray-700 hover:text-black focus:outline-none"
               whileTap={{ scale: 0.95 }}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -238,9 +247,12 @@ const Header = () => {
               transition={{ duration: 0.3 }}
             >
               <nav className="flex flex-col space-y-4">
-                <Link to="/" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
+                <button 
+                  onClick={scrollToTop} 
+                  className="text-left text-gray-700 hover:text-black font-medium px-4 py-2"
+                >
                   Home
-                </Link>
+                </button>
                 
                 <div className="px-4">
                   <p className="font-medium text-gray-700 mb-2">Categories</p>
@@ -249,7 +261,7 @@ const Header = () => {
                       <motion.button 
                         key={category}
                         onClick={() => navigateToCategory(category)}
-                        className="text-left text-gray-600 hover:text-primary flex items-center"
+                        className="text-left text-gray-600 hover:text-black flex items-center"
                         whileHover={{ x: 5 }}
                         transition={{ duration: 0.2 }}
                       >
@@ -262,14 +274,14 @@ const Header = () => {
                 
                 <button 
                   onClick={() => scrollToSection("featured")} 
-                  className="text-left text-gray-700 hover:text-primary font-medium px-4 py-2"
+                  className="text-left text-gray-700 hover:text-black font-medium px-4 py-2"
                 >
                   Featured
                 </button>
                 
                 <button 
                   onClick={() => scrollToSection("new-arrivals")}
-                  className="text-left text-gray-700 hover:text-primary font-medium px-4 py-2"
+                  className="text-left text-gray-700 hover:text-black font-medium px-4 py-2"
                 >
                   New Arrivals
                 </button>
@@ -278,7 +290,7 @@ const Header = () => {
                   href="https://wa.me/1234567890" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-700 hover:text-primary font-medium px-4 py-2 flex items-center"
+                  className="text-gray-700 hover:text-black font-medium px-4 py-2 flex items-center"
                 >
                   Contact
                 </a>
@@ -290,19 +302,23 @@ const Header = () => {
       
       {/* Search Command Dialog */}
       <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
-        <CommandInput 
-          placeholder="Search products..." 
-          value={searchQuery}
-          onValueChange={setSearchQuery}
-          ref={searchInputRef}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              const results = searchProducts(searchQuery);
-              setSearchResults(results);
-            }
-          }}
-          className="border-none focus:ring-0"
-        />
+        <form onSubmit={handleSearch}>
+          <CommandInput 
+            placeholder="Search products..." 
+            value={searchQuery}
+            onValueChange={(value) => {
+              setSearchQuery(value);
+              if (value.trim()) {
+                const results = searchProducts(value);
+                setSearchResults(results);
+              } else {
+                setSearchResults([]);
+              }
+            }}
+            ref={searchInputRef}
+            className="border-none focus:ring-0"
+          />
+        </form>
         <CommandList>
           <CommandEmpty>
             {searchQuery.length > 0 ? (
