@@ -10,6 +10,8 @@ export interface Product {
   category: string;
   useCase: string;
   image: string;
+  isFeatured?: boolean;
+  isNewArrival?: boolean;
 }
 
 export interface Category {
@@ -37,7 +39,9 @@ const initialProducts: Product[] = [
     dimensions: "12cm height x 15cm projection",
     category: "Ceiling Cornices",
     useCase: "Living Rooms, Dining Rooms",
-    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d"
+    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+    isFeatured: true,
+    isNewArrival: false
   },
   {
     id: 2,
@@ -46,7 +50,9 @@ const initialProducts: Product[] = [
     dimensions: "50cm x 50cm panels",
     category: "3D Panels",
     useCase: "Feature Walls, Office Spaces",
-    image: "https://images.unsplash.com/photo-1601084881623-cdf9a8ea242c"
+    image: "https://images.unsplash.com/photo-1601084881623-cdf9a8ea242c",
+    isFeatured: true,
+    isNewArrival: false
   },
   {
     id: 3,
@@ -55,7 +61,9 @@ const initialProducts: Product[] = [
     dimensions: "60cm diameter",
     category: "Ceiling Medallions",
     useCase: "Dining Rooms, Entryways",
-    image: "https://images.unsplash.com/photo-1603203040289-611d79cb1fe7"
+    image: "https://images.unsplash.com/photo-1603203040289-611d79cb1fe7",
+    isFeatured: false,
+    isNewArrival: true
   }
 ];
 
@@ -108,6 +116,16 @@ const initializeData = <T>(key: string, initialData: T[]): T[] => {
 // Products CRUD operations
 export const getProducts = (): Product[] => {
   return initializeData<Product>(PRODUCTS_STORAGE_KEY, initialProducts);
+};
+
+export const getFeaturedProducts = (): Product[] => {
+  const products = getProducts();
+  return products.filter(product => product.isFeatured);
+};
+
+export const getNewArrivals = (): Product[] => {
+  const products = getProducts();
+  return products.filter(product => product.isNewArrival);
 };
 
 export const addProduct = (product: Omit<Product, "id">): Product => {
@@ -251,4 +269,18 @@ export const moveCarouselImageDown = (id: number) => {
   
   localStorage.setItem("carouselImages", JSON.stringify(newImages));
   return newImages;
+};
+
+// Search products function
+export const searchProducts = (query: string): Product[] => {
+  if (!query.trim()) return [];
+  
+  const products = getProducts();
+  const searchTerm = query.toLowerCase();
+  
+  return products.filter(product => 
+    product.name.toLowerCase().includes(searchTerm) || 
+    product.description.toLowerCase().includes(searchTerm) || 
+    product.category.toLowerCase().includes(searchTerm)
+  );
 };

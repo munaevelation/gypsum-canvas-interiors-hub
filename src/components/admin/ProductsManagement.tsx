@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -38,6 +39,8 @@ import {
   Ruler,
   Info,
   FileText,
+  Star,
+  Clock,
 } from "lucide-react";
 import ImageUpload from "./ImageUpload";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -64,7 +67,9 @@ const ProductsManagement = () => {
     dimensions: "",
     category: "",
     useCase: "",
-    image: ""
+    image: "",
+    isFeatured: false,
+    isNewArrival: false
   });
   
   // Load products and categories on component mount
@@ -91,7 +96,9 @@ const ProductsManagement = () => {
       dimensions: "",
       category: "",
       useCase: "",
-      image: ""
+      image: "",
+      isFeatured: false,
+      isNewArrival: false
     });
   };
   
@@ -119,7 +126,9 @@ const ProductsManagement = () => {
         dimensions: productToEdit.dimensions,
         category: productToEdit.category,
         useCase: productToEdit.useCase,
-        image: productToEdit.image
+        image: productToEdit.image,
+        isFeatured: productToEdit.isFeatured || false,
+        isNewArrival: productToEdit.isNewArrival || false
       });
     }
   };
@@ -270,6 +279,35 @@ const ProductsManagement = () => {
                 />
               </div>
               
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2">
+                  <Star className="h-4 w-4 text-[#9b87f5]" />
+                  Product Status
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="isFeatured"
+                    checked={newProduct.isFeatured}
+                    onCheckedChange={(checked) => setNewProduct({...newProduct, isFeatured: checked === true})}
+                    className="border-[#9b87f5]/30 data-[state=checked]:bg-[#9b87f5]"
+                  />
+                  <Label htmlFor="isFeatured" className="text-sm cursor-pointer">
+                    Featured Product
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="isNewArrival"
+                    checked={newProduct.isNewArrival}
+                    onCheckedChange={(checked) => setNewProduct({...newProduct, isNewArrival: checked === true})}
+                    className="border-[#9b87f5]/30 data-[state=checked]:bg-[#9b87f5]"
+                  />
+                  <Label htmlFor="isNewArrival" className="text-sm cursor-pointer">
+                    New Arrival
+                  </Label>
+                </div>
+              </div>
+              
               <div className="space-y-2 md:col-span-2">
                 <ImageUpload 
                   value={newProduct.image}
@@ -307,8 +345,8 @@ const ProductsManagement = () => {
                 <TableHead className="w-[50px]">Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
-                <TableHead>Dimensions</TableHead>
-                <TableHead className="hidden md:table-cell">Use Cases</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="hidden md:table-cell">Dimensions</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -334,8 +372,21 @@ const ProductsManagement = () => {
                       {product.category}
                     </span>
                   </TableCell>
-                  <TableCell>{product.dimensions}</TableCell>
-                  <TableCell className="hidden md:table-cell">{product.useCase}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      {product.isFeatured && (
+                        <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
+                          <Star className="h-3 w-3 mr-1" /> Featured
+                        </span>
+                      )}
+                      {product.isNewArrival && (
+                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700">
+                          <Clock className="h-3 w-3 mr-1" /> New Arrival
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{product.dimensions}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
                       <Dialog>
@@ -364,6 +415,18 @@ const ProductsManagement = () => {
                                 />
                               </div>
                             )}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              {product.isFeatured && (
+                                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
+                                  <Star className="h-3 w-3 mr-1" /> Featured
+                                </span>
+                              )}
+                              {product.isNewArrival && (
+                                <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700">
+                                  <Clock className="h-3 w-3 mr-1" /> New Arrival
+                                </span>
+                              )}
+                            </div>
                             <div className="space-y-2">
                               <p className="text-sm font-semibold flex items-center gap-2">
                                 <Tag className="h-4 w-4 text-[#9b87f5]" /> Category

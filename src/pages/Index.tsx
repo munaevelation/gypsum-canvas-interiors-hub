@@ -1,12 +1,12 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import NewArrivals from "@/components/NewArrivals";
 import Categories from "@/components/Categories";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { getProducts, Product } from "@/services/dataService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,11 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const activeCategory = searchParams.get("category") || null;
   const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
+  const location = useLocation();
+  
+  // Refs for scroll sections
+  const featuredRef = useRef<HTMLElement>(null);
+  const newArrivalsRef = useRef<HTMLElement>(null);
   
   useEffect(() => {
     if (activeCategory) {
@@ -26,6 +31,19 @@ const Index = () => {
       setCategoryProducts(filtered);
     }
   }, [activeCategory]);
+  
+  // Handle section scroll from URL parameters
+  useEffect(() => {
+    const section = searchParams.get("section");
+    if (section) {
+      const sectionElement = document.getElementById(section);
+      if (sectionElement) {
+        setTimeout(() => {
+          sectionElement.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
+  }, [searchParams]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -61,6 +79,21 @@ const Index = () => {
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       />
+                      {product.isFeatured && (
+                        <Badge className="absolute top-2 right-2 bg-primary">
+                          Featured
+                        </Badge>
+                      )}
+                      {product.isNewArrival && (
+                        <Badge className="absolute top-2 right-2 bg-emerald-500">
+                          New
+                        </Badge>
+                      )}
+                      {product.isFeatured && product.isNewArrival && (
+                        <Badge className="absolute top-10 right-2 bg-emerald-500">
+                          New
+                        </Badge>
+                      )}
                     </div>
                     <CardContent className="p-4 flex-grow flex flex-col">
                       <div className="mb-2 flex items-center space-x-2">

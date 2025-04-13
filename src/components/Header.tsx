@@ -1,7 +1,7 @@
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Search, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,7 +9,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { toast } from "sonner";
+import { searchProducts, Product } from "@/services/dataService";
 
 const categories = [
   "Ceiling Cornices",
@@ -25,12 +36,41 @@ const categories = [
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  
+  // Handle search command dialog
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setIsSearchOpen((open) => !open);
+      }
+    };
+    
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+  
+  // Close search dialog when route changes
+  useEffect(() => {
+    setIsSearchOpen(false);
+  }, [location.pathname]);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Searching for:", searchQuery);
-    // Here we would handle search functionality
+    if (searchQuery.trim()) {
+      const results = searchProducts(searchQuery);
+      if (results.length > 0) {
+        setSearchResults(results);
+        setIsSearchOpen(true);
+      } else {
+        toast.info("No products found matching your search");
+      }
+    }
   };
   
   const toggleMenu = () => {
@@ -41,19 +81,56 @@ const Header = () => {
     navigate(`/?category=${encodeURIComponent(category)}`);
     setIsMenuOpen(false);
   };
+  
+  const scrollToSection = (sectionId: string) => {
+    setIsMenuOpen(false);
+    
+    // If we're not on the home page, navigate there first then scroll
+    if (location.pathname !== "/") {
+      navigate("/", { state: { scrollTo: sectionId } });
+      return;
+    }
+    
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+  
+  useEffect(() => {
+    // Check if we have a section to scroll to after navigation
+    if (location.pathname === "/" && location.state && (location.state as any).scrollTo) {
+      const sectionId = (location.state as any).scrollTo;
+      setTimeout(() => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100); // Small delay to ensure the page is rendered
+    }
+  }, [location]);
 
-  const NavLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
+  const NavLink = ({ to, onClick, children }: { to?: string; onClick?: () => void; children: React.ReactNode }) => (
     <motion.div
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       transition={{ duration: 0.2 }}
     >
-      <Link 
-        to={to} 
-        className="text-gray-700 hover:text-primary font-medium"
-      >
-        {children}
-      </Link>
+      {to ? (
+        <Link 
+          to={to} 
+          className="text-gray-700 hover:text-primary font-medium"
+        >
+          {children}
+        </Link>
+      ) : (
+        <button 
+          onClick={onClick}
+          className="text-gray-700 hover:text-primary font-medium"
+        >
+          {children}
+        </button>
+      )}
     </motion.div>
   );
   
@@ -99,9 +176,9 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
             
-            <NavLink to="/?section=featured">Featured</NavLink>
+            <NavLink onClick={() => scrollToSection("featured")}>Featured</NavLink>
             
-            <NavLink to="/?section=new-arrivals">New Arrivals</NavLink>
+            <NavLink onClick={() => scrollToSection("new-arrivals")}>New Arrivals</NavLink>
             
             <motion.a 
               href="https://wa.me/1234567890" 
@@ -116,25 +193,30 @@ const Header = () => {
             </motion.a>
           </nav>
           
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="hidden md:flex items-center relative max-w-md mx-4 flex-grow">
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-primary"
+          {/* Search Button (Desktop) */}
+          <div className="hidden md:flex items-center">
+            <Button 
+              variant="outline" 
+              className="relative h-9 px-4 text-sm text-muted-foreground border-gray-200 hover:bg-gray-100"
+              onClick={() => setIsSearchOpen(true)}
             >
-              <Search className="h-5 w-5" />
-            </button>
-          </form>
+              <Search className="h-4 w-4 mr-2" />
+              <span>Search products...</span>
+              <kbd className="ml-3 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </Button>
+          </div>
           
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-4">
+            <motion.button
+              onClick={() => setIsSearchOpen(true)}
+              className="text-gray-700 hover:text-primary focus:outline-none"
+              whileTap={{ scale: 0.95 }}
+            >
+              <Search className="h-5 w-5" />
+            </motion.button>
             <motion.button
               onClick={toggleMenu}
               className="text-gray-700 hover:text-primary focus:outline-none"
@@ -145,73 +227,128 @@ const Header = () => {
           </div>
         </div>
         
-        {/* Mobile Search Bar */}
-        <div className="mt-4 md:hidden">
-          <form onSubmit={handleSearch} className="flex items-center relative">
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-primary"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-          </form>
-        </div>
-        
         {/* Mobile Menu */}
-        <motion.div 
-          className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'} mt-4 py-4 bg-white border-t`}
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: isMenuOpen ? 'auto' : 0, opacity: isMenuOpen ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <nav className="flex flex-col space-y-4">
-            <Link to="/" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
-              Home
-            </Link>
-            
-            <div className="px-4">
-              <p className="font-medium text-gray-700 mb-2">Categories</p>
-              <div className="ml-4 flex flex-col space-y-2">
-                {categories.map((category) => (
-                  <motion.button 
-                    key={category}
-                    onClick={() => navigateToCategory(category)}
-                    className="text-left text-gray-600 hover:text-primary"
-                    whileHover={{ x: 5 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {category}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-            
-            <Link to="/?section=featured" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
-              Featured
-            </Link>
-            
-            <Link to="/?section=new-arrivals" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
-              New Arrivals
-            </Link>
-            
-            <a 
-              href="https://wa.me/1234567890" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-gray-700 hover:text-primary font-medium px-4 py-2 flex items-center"
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              className="md:hidden mt-4 py-4 bg-white border-t"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
             >
-              Contact
-            </a>
-          </nav>
-        </motion.div>
+              <nav className="flex flex-col space-y-4">
+                <Link to="/" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
+                  Home
+                </Link>
+                
+                <div className="px-4">
+                  <p className="font-medium text-gray-700 mb-2">Categories</p>
+                  <div className="ml-4 flex flex-col space-y-2">
+                    {categories.map((category) => (
+                      <motion.button 
+                        key={category}
+                        onClick={() => navigateToCategory(category)}
+                        className="text-left text-gray-600 hover:text-primary flex items-center"
+                        whileHover={{ x: 5 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronRight className="h-4 w-4 mr-1" />
+                        {category}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => scrollToSection("featured")} 
+                  className="text-left text-gray-700 hover:text-primary font-medium px-4 py-2"
+                >
+                  Featured
+                </button>
+                
+                <button 
+                  onClick={() => scrollToSection("new-arrivals")}
+                  className="text-left text-gray-700 hover:text-primary font-medium px-4 py-2"
+                >
+                  New Arrivals
+                </button>
+                
+                <a 
+                  href="https://wa.me/1234567890" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-700 hover:text-primary font-medium px-4 py-2 flex items-center"
+                >
+                  Contact
+                </a>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+      
+      {/* Search Command Dialog */}
+      <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+        <CommandInput 
+          placeholder="Search products..." 
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+          ref={searchInputRef}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              const results = searchProducts(searchQuery);
+              setSearchResults(results);
+            }
+          }}
+          className="border-none focus:ring-0"
+        />
+        <CommandList>
+          <CommandEmpty>
+            {searchQuery.length > 0 ? (
+              <div className="py-6 text-center text-sm">
+                <p>No products found matching '{searchQuery}'</p>
+              </div>
+            ) : (
+              <div className="py-6 text-center text-sm">
+                <p>Type to search products...</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Search by product name, category, or description
+                </p>
+              </div>
+            )}
+          </CommandEmpty>
+          {searchResults.length > 0 && (
+            <CommandGroup heading="Products">
+              {searchResults.map((product) => (
+                <CommandItem
+                  key={product.id}
+                  onSelect={() => {
+                    navigate(`/?product=${product.id}`);
+                    setIsSearchOpen(false);
+                    setSearchQuery("");
+                  }}
+                  className="flex items-center py-2"
+                >
+                  {product.image && (
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="h-10 w-10 rounded object-cover mr-3"
+                    />
+                  )}
+                  <div>
+                    <p className="font-medium">{product.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {product.category}
+                    </p>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+        </CommandList>
+      </CommandDialog>
     </header>
   );
 };

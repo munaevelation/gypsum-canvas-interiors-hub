@@ -28,10 +28,10 @@ const Footer = () => {
                 <Link to="/" className="text-gray-300 hover:text-primary">Home</Link>
               </li>
               <li>
-                <Link to="/?section=featured" className="text-gray-300 hover:text-primary">Featured Products</Link>
+                <Link to="/#featured" className="text-gray-300 hover:text-primary">Featured Products</Link>
               </li>
               <li>
-                <Link to="/?section=new-arrivals" className="text-gray-300 hover:text-primary">New Arrivals</Link>
+                <Link to="/#new-arrivals" className="text-gray-300 hover:text-primary">New Arrivals</Link>
               </li>
               <li>
                 <a 
@@ -49,19 +49,19 @@ const Footer = () => {
           {/* Contact Details */}
           <div>
             <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-3">
+            <ul className="space-y-6">
               <li className="flex items-start">
-                <Phone className="h-5 w-5 text-primary mr-2 mt-1" />
+                <Phone className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
                 <span className="text-gray-300">+1 (234) 567-8900</span>
               </li>
               <li className="flex items-start">
-                <Mail className="h-5 w-5 text-primary mr-2 mt-1" />
+                <Mail className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
                 <a href="mailto:info@gypsumcarnis.com" className="text-gray-300 hover:text-primary">
                   info@gypsumcarnis.com
                 </a>
               </li>
               <li className="flex items-start">
-                <MapPin className="h-5 w-5 text-primary mr-2 mt-1" />
+                <MapPin className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
                 <span className="text-gray-300">
                   123 Design Street, Creative District, City, Country
                 </span>
