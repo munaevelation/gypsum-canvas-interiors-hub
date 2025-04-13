@@ -1,4 +1,3 @@
-
 // Simple in-memory data service
 // In a real application, this would connect to a backend API
 
@@ -18,6 +17,15 @@ export interface Category {
   name: string;
   description: string;
   image: string;
+}
+
+export interface CarouselImage {
+  id: number;
+  image: string;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  buttonLink: string;
 }
 
 // Initial sample data
@@ -173,4 +181,74 @@ export const deleteCategory = (id: number): void => {
 export const getCategoryNames = (): string[] => {
   const categories = getCategories();
   return categories.map(category => category.name);
+};
+
+// Get carousel images from localStorage
+export const getCarouselImages = (): CarouselImage[] => {
+  const images = localStorage.getItem("carouselImages");
+  return images ? JSON.parse(images) : [];
+};
+
+// Add a new carousel image
+export const addCarouselImage = (image: Omit<CarouselImage, "id">) => {
+  const images = getCarouselImages();
+  const newImage = {
+    ...image,
+    id: Date.now()
+  };
+  
+  localStorage.setItem("carouselImages", JSON.stringify([...images, newImage]));
+  return newImage;
+};
+
+// Update an existing carousel image
+export const updateCarouselImage = (updatedImage: CarouselImage) => {
+  const images = getCarouselImages();
+  const updatedImages = images.map(img => 
+    img.id === updatedImage.id ? updatedImage : img
+  );
+  
+  localStorage.setItem("carouselImages", JSON.stringify(updatedImages));
+  return updatedImage;
+};
+
+// Delete a carousel image
+export const deleteCarouselImage = (id: number) => {
+  const images = getCarouselImages();
+  const updatedImages = images.filter(img => img.id !== id);
+  
+  localStorage.setItem("carouselImages", JSON.stringify(updatedImages));
+  return id;
+};
+
+// Move a carousel image up in the order
+export const moveCarouselImageUp = (id: number) => {
+  const images = getCarouselImages();
+  const index = images.findIndex(img => img.id === id);
+  
+  if (index <= 0) return; // Already at the top
+  
+  const newImages = [...images];
+  const temp = newImages[index];
+  newImages[index] = newImages[index - 1];
+  newImages[index - 1] = temp;
+  
+  localStorage.setItem("carouselImages", JSON.stringify(newImages));
+  return newImages;
+};
+
+// Move a carousel image down in the order
+export const moveCarouselImageDown = (id: number) => {
+  const images = getCarouselImages();
+  const index = images.findIndex(img => img.id === id);
+  
+  if (index === -1 || index === images.length - 1) return; // Not found or already at the bottom
+  
+  const newImages = [...images];
+  const temp = newImages[index];
+  newImages[index] = newImages[index + 1];
+  newImages[index + 1] = temp;
+  
+  localStorage.setItem("carouselImages", JSON.stringify(newImages));
+  return newImages;
 };

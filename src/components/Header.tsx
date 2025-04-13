@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Menu, X, ShoppingCart, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { motion } from "framer-motion";
 
 const categories = [
   "Ceiling Cornices",
@@ -40,6 +41,21 @@ const Header = () => {
     navigate(`/?category=${encodeURIComponent(category)}`);
     setIsMenuOpen(false);
   };
+
+  const NavLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Link 
+        to={to} 
+        className="text-gray-700 hover:text-primary font-medium"
+      >
+        {children}
+      </Link>
+    </motion.div>
+  );
   
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -52,45 +68,52 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="text-gray-700 hover:text-primary font-medium">
-              Home
-            </Link>
+            <NavLink to="/">Home</NavLink>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center text-gray-700 hover:text-primary font-medium">
+                <motion.button 
+                  className="flex items-center text-gray-700 hover:text-primary font-medium"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
                   Categories <ChevronDown className="ml-1 h-4 w-4" />
-                </button>
+                </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 bg-white">
                 {categories.map((category) => (
-                  <DropdownMenuItem 
+                  <motion.div
                     key={category}
-                    onClick={() => navigateToCategory(category)}
-                    className="cursor-pointer"
+                    whileHover={{ backgroundColor: "#f3f4f6" }}
+                    transition={{ duration: 0.2 }}
                   >
-                    {category}
-                  </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => navigateToCategory(category)}
+                      className="cursor-pointer"
+                    >
+                      {category}
+                    </DropdownMenuItem>
+                  </motion.div>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
             
-            <Link to="/?section=featured" className="text-gray-700 hover:text-primary font-medium">
-              Featured
-            </Link>
+            <NavLink to="/?section=featured">Featured</NavLink>
             
-            <Link to="/?section=new-arrivals" className="text-gray-700 hover:text-primary font-medium">
-              New Arrivals
-            </Link>
+            <NavLink to="/?section=new-arrivals">New Arrivals</NavLink>
             
-            <a 
+            <motion.a 
               href="https://wa.me/1234567890" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-gray-700 hover:text-primary font-medium"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
               Contact
-            </a>
+            </motion.a>
           </nav>
           
           {/* Search Bar */}
@@ -112,12 +135,13 @@ const Header = () => {
           
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-4">
-            <button
+            <motion.button
               onClick={toggleMenu}
               className="text-gray-700 hover:text-primary focus:outline-none"
+              whileTap={{ scale: 0.95 }}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            </motion.button>
           </div>
         </div>
         
@@ -141,47 +165,52 @@ const Header = () => {
         </div>
         
         {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden mt-4 py-4 bg-white border-t">
-            <nav className="flex flex-col space-y-4">
-              <Link to="/" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
-                Home
-              </Link>
-              
-              <div className="px-4">
-                <p className="font-medium text-gray-700 mb-2">Categories</p>
-                <div className="ml-4 flex flex-col space-y-2">
-                  {categories.map((category) => (
-                    <button 
-                      key={category}
-                      onClick={() => navigateToCategory(category)}
-                      className="text-left text-gray-600 hover:text-primary"
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
+        <motion.div 
+          className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'} mt-4 py-4 bg-white border-t`}
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: isMenuOpen ? 'auto' : 0, opacity: isMenuOpen ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <nav className="flex flex-col space-y-4">
+            <Link to="/" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
+              Home
+            </Link>
+            
+            <div className="px-4">
+              <p className="font-medium text-gray-700 mb-2">Categories</p>
+              <div className="ml-4 flex flex-col space-y-2">
+                {categories.map((category) => (
+                  <motion.button 
+                    key={category}
+                    onClick={() => navigateToCategory(category)}
+                    className="text-left text-gray-600 hover:text-primary"
+                    whileHover={{ x: 5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {category}
+                  </motion.button>
+                ))}
               </div>
-              
-              <Link to="/?section=featured" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
-                Featured
-              </Link>
-              
-              <Link to="/?section=new-arrivals" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
-                New Arrivals
-              </Link>
-              
-              <a 
-                href="https://wa.me/1234567890" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-700 hover:text-primary font-medium px-4 py-2 flex items-center"
-              >
-                Contact
-              </a>
-            </nav>
-          </div>
-        )}
+            </div>
+            
+            <Link to="/?section=featured" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
+              Featured
+            </Link>
+            
+            <Link to="/?section=new-arrivals" className="text-gray-700 hover:text-primary font-medium px-4 py-2">
+              New Arrivals
+            </Link>
+            
+            <a 
+              href="https://wa.me/1234567890" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-700 hover:text-primary font-medium px-4 py-2 flex items-center"
+            >
+              Contact
+            </a>
+          </nav>
+        </motion.div>
       </div>
     </header>
   );

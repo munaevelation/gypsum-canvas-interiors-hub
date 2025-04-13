@@ -1,84 +1,135 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getCarouselImages, CarouselImage } from "@/services/dataService";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Hero = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [carouselImages, setCarouselImages] = useState<CarouselImage[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   
-  const slides = [
-    {
-      id: 1,
-      title: "Elegant Gypsum Designs for Modern Interiors",
-      description: "Transform your space with our premium quality gypsum carnis and interior decor products.",
-      image: "https://images.unsplash.com/photo-1600210492493-0946911123ea?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-      cta: "Explore Collection"
-    },
-    {
-      id: 2,
-      title: "Ceiling Designs That Inspire",
-      description: "Our ceiling medallions and cornices add elegance to any room.",
-      image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-      cta: "View Ceiling Collection"
-    },
-    {
-      id: 3,
-      title: "Wall Panels for Character & Style",
-      description: "Add dimension and texture to your walls with our designer panels.",
-      image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-      cta: "Discover Wall Panels"
+  useEffect(() => {
+    // Load carousel images from our data service
+    const images = getCarouselImages();
+    
+    // If there are no carousel images, use default ones
+    if (images.length === 0) {
+      setCarouselImages([
+        {
+          id: 1,
+          image: "https://images.unsplash.com/photo-1618220179428-22790b461013?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=500&q=80",
+          title: "Elegant Interior Solutions",
+          subtitle: "Transform your space with our premium collection of decorative elements",
+          buttonText: "Explore Collection",
+          buttonLink: "/?category=Ceiling Cornices"
+        }
+      ]);
+    } else {
+      setCarouselImages(images);
     }
-  ];
+  }, []);
+  
+  useEffect(() => {
+    if (carouselImages.length <= 1) return;
+    
+    // Auto-rotate carousel every 5 seconds
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [carouselImages]);
   
   const goToSlide = (index: number) => {
-    setCurrentSlide(index);
+    setCurrentIndex(index);
   };
   
+  const goToPrevious = () => {
+    const newIndex = currentIndex === 0 ? carouselImages.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+  };
+  
+  const goToNext = () => {
+    const newIndex = (currentIndex + 1) % carouselImages.length;
+    setCurrentIndex(newIndex);
+  };
+  
+  if (carouselImages.length === 0) return null;
+  
   return (
-    <div className="relative h-[500px] md:h-[600px] overflow-hidden">
-      {/* Slider */}
-      <div 
-        className="w-full h-full transition-transform duration-700 ease-in-out flex"
-        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-      >
-        {slides.map((slide) => (
+    <div className="relative w-full h-[500px] bg-gray-100 overflow-hidden">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="absolute inset-0"
+        >
           <div 
-            key={slide.id}
-            className="w-full h-full flex-shrink-0 relative"
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${carouselImages[currentIndex].image})` }}
           >
-            <div 
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${slide.image})` }}
-            >
-              <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-            </div>
-            
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-white max-w-3xl px-4">
-                <h1 className="text-3xl md:text-5xl font-bold mb-4">{slide.title}</h1>
-                <p className="text-lg md:text-xl mb-8">{slide.description}</p>
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-white">
-                  {slide.cta} <ChevronRight className="ml-2 h-5 w-5" />
-                </Button>
-              </div>
+            <div className="absolute inset-0 bg-black bg-opacity-40" />
+          </div>
+          
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="container mx-auto px-4 text-center">
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+                  {carouselImages[currentIndex].title}
+                </h1>
+                <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto">
+                  {carouselImages[currentIndex].subtitle}
+                </p>
+                <Link to={carouselImages[currentIndex].buttonLink}>
+                  <Button size="lg" className="bg-white text-black hover:bg-gray-100">
+                    {carouselImages[currentIndex].buttonText}
+                  </Button>
+                </Link>
+              </motion.div>
             </div>
           </div>
-        ))}
-      </div>
+        </motion.div>
+      </AnimatePresence>
       
-      {/* Slider Controls */}
-      <div className="absolute bottom-5 left-0 right-0 flex justify-center space-x-2">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full ${
-              currentSlide === index ? "bg-primary" : "bg-white bg-opacity-50"
-            }`}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
+      {/* Navigation arrows */}
+      {carouselImages.length > 1 && (
+        <>
+          <button 
+            onClick={goToPrevious}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <button 
+            onClick={goToNext}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+          
+          {/* Dots indicator */}
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+            {carouselImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  index === currentIndex ? "bg-white" : "bg-white/50 hover:bg-white/80"
+                }`}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
