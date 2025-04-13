@@ -1,11 +1,18 @@
 
 import { MapPin, Phone, Mail, ExternalLink } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
   
   const scrollToSection = (sectionId: string) => {
+    // If we're not on the home page, navigate there first then scroll
+    if (window.location.pathname !== "/") {
+      navigate(`/?section=${sectionId}`);
+      return;
+    }
+    
     const section = document.getElementById(sectionId);
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
@@ -32,7 +39,11 @@ const Footer = () => {
             <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-gray-300 hover:text-white">
+                <Link 
+                  to="/" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+                  className="text-gray-300 hover:text-white"
+                >
                   Home
                 </Link>
               </li>
@@ -51,6 +62,11 @@ const Footer = () => {
                 >
                   New Arrivals
                 </button>
+              </li>
+              <li>
+                <Link to="/about" className="text-gray-300 hover:text-white">
+                  About Us
+                </Link>
               </li>
               <li>
                 <a 

@@ -10,13 +10,15 @@ import { useSearchParams, useLocation } from "react-router-dom";
 import { getProducts, Product } from "@/services/dataService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Ruler, Tag } from "lucide-react";
+import { Ruler, Tag, ArrowUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
   const activeCategory = searchParams.get("category") || null;
   const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
   const location = useLocation();
+  const [showBackToTop, setShowBackToTop] = useState(false);
   
   // Refs for scroll sections
   const featuredRef = useRef<HTMLElement>(null);
@@ -44,6 +46,24 @@ const Index = () => {
       }
     }
   }, [searchParams]);
+
+  // Show/hide back to top button based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 500) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -125,6 +145,23 @@ const Index = () => {
             )}
           </div>
         )}
+
+        {/* Back to Top Button */}
+        <AnimatePresence>
+          {showBackToTop && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              transition={{ duration: 0.3 }}
+              onClick={scrollToTop}
+              className="fixed right-6 bottom-6 bg-black text-white rounded-full p-3 shadow-lg hover:bg-gray-800 focus:outline-none z-30"
+              aria-label="Back to top"
+            >
+              <ArrowUp className="h-6 w-6" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </main>
       
       <Footer />

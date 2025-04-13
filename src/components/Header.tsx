@@ -79,6 +79,12 @@ const Header = () => {
     navigate(`/?category=${encodeURIComponent(category)}`);
     setIsMenuOpen(false);
   };
+
+  const navigateToHome = () => {
+    navigate('/');
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setIsMenuOpen(false);
+  };
   
   const scrollToSection = (sectionId: string) => {
     setIsMenuOpen(false);
@@ -148,13 +154,16 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" onClick={reloadPage} className="text-2xl font-bold text-gray-800">
+          <div 
+            onClick={navigateToHome} 
+            className="text-2xl font-bold text-gray-800 cursor-pointer"
+          >
             Gypsum<span className="text-black">Carnis</span>
-          </Link>
+          </div>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <NavLink onClick={scrollToTop}>Home</NavLink>
+            <NavLink onClick={navigateToHome}>Home</NavLink>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -188,6 +197,8 @@ const Header = () => {
             <NavLink onClick={() => scrollToSection("featured")}>Featured</NavLink>
             
             <NavLink onClick={() => scrollToSection("new-arrivals")}>New Arrivals</NavLink>
+            
+            <NavLink to="/about">About</NavLink>
             
             <motion.a 
               href="https://wa.me/1234567890" 
@@ -248,7 +259,7 @@ const Header = () => {
             >
               <nav className="flex flex-col space-y-4">
                 <button 
-                  onClick={scrollToTop} 
+                  onClick={navigateToHome} 
                   className="text-left text-gray-700 hover:text-black font-medium px-4 py-2"
                 >
                   Home
@@ -285,6 +296,13 @@ const Header = () => {
                 >
                   New Arrivals
                 </button>
+                
+                <Link
+                  to="/about"
+                  className="text-left text-gray-700 hover:text-black font-medium px-4 py-2"
+                >
+                  About
+                </Link>
                 
                 <a 
                   href="https://wa.me/1234567890" 
