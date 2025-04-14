@@ -53,14 +53,13 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      const updatedGallery = [...galleryImages, result];
-      setGalleryImages(updatedGallery);
+      setGalleryImages(prevImages => [...prevImages, result]);
       toast.success("Image added to gallery");
+      
+      // Reset input
+      if (fileInputRef.current) fileInputRef.current.value = '';
     };
     reader.readAsDataURL(file);
-    
-    // Reset input
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
   
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,14 +77,13 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      const updatedGallery = [...galleryImages, result];
-      setGalleryImages(updatedGallery);
+      setGalleryImages(prevImages => [...prevImages, result]);
       toast.success("Video added to gallery");
+      
+      // Reset input
+      if (videoInputRef.current) videoInputRef.current.value = '';
     };
     reader.readAsDataURL(file);
-    
-    // Reset input
-    if (videoInputRef.current) videoInputRef.current.value = '';
   };
   
   const handleRemoveImage = (index: number) => {
@@ -212,6 +210,7 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
                                 {isVideo(media) ? (
                                   <video 
                                     className="h-full w-full object-cover"
+                                    controls
                                     muted
                                   >
                                     <source src={media} />

@@ -20,19 +20,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { toast } from "sonner";
-import { searchProducts, Product } from "@/services/dataService";
+import { searchProducts, Product, getCategoryNames } from "@/services/dataService";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-const categories = [
-  "Ceiling Cornices",
-  "Wall Panels",
-  "Light Troughs",
-  "Columns & Pillars",
-  "Ceiling Medallions",
-  "Decorative Mouldings",
-  "3D Panels",
-  "Modern Trims"
-];
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,6 +32,7 @@ const Header = () => {
   const location = useLocation();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+  const categories = getCategoryNames();
   
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -176,6 +166,7 @@ const Header = () => {
   return (
     <header className="bg-white text-black shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
+        {/* Top row with logo and search bar on mobile */}
         <div className="flex items-center justify-between">
           <div 
             onClick={navigateToHome} 
@@ -184,37 +175,20 @@ const Header = () => {
             Gypsum<span className="text-black">Carnis</span>
           </div>
           
-          {/* Mobile Circular Nav - Moved just below logo */}
+          {/* Search bar on mobile */}
           {isMobile && (
-            <div className="md:hidden flex justify-between w-full max-w-xs mx-auto mt-2">
-              <CircularNavButton 
-                icon={<Home className="h-5 w-5" />} 
-                label="Home" 
-                onClick={navigateToHome} 
-              />
-              <CircularNavButton 
-                icon={<Star className="h-5 w-5" />} 
-                label="Featured" 
-                onClick={() => scrollToSection("featured")} 
-              />
-              <CircularNavButton 
-                icon={<Clock className="h-5 w-5" />} 
-                label="New" 
-                onClick={() => scrollToSection("new-arrivals")} 
-              />
-              <CircularNavButton 
-                icon={<Info className="h-5 w-5" />} 
-                label="About" 
-                onClick={() => navigateTo("/about")} 
-              />
-              <CircularNavButton 
-                icon={<MessageSquare className="h-5 w-5" />} 
-                label="Contact" 
-                onClick={() => window.open("https://wa.me/1234567890", "_blank")} 
-              />
+            <div className="flex items-center">
+              <motion.button
+                onClick={() => setIsSearchOpen(true)}
+                className="ml-auto text-black hover:text-gray-700 focus:outline-none"
+                whileTap={{ scale: 0.95 }}
+              >
+                <Search className="h-5 w-5" />
+              </motion.button>
             </div>
           )}
           
+          {/* Desktop navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             <NavLink onClick={navigateToHome}>Home</NavLink>
             
@@ -252,18 +226,6 @@ const Header = () => {
             <NavLink onClick={() => scrollToSection("new-arrivals")}>New Arrivals</NavLink>
             
             <NavLink to="/about">About</NavLink>
-            
-            <motion.a 
-              href="https://wa.me/1234567890" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-gray-700 hover:text-black font-medium"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              Contact
-            </motion.a>
           </nav>
           
           <div className="hidden md:flex items-center">
@@ -279,49 +241,62 @@ const Header = () => {
               </kbd>
             </Button>
           </div>
-          
-          <div className="flex md:hidden items-center space-x-4">
-            <motion.button
-              onClick={() => setIsSearchOpen(true)}
-              className="text-black hover:text-gray-700 focus:outline-none"
-              whileTap={{ scale: 0.95 }}
-            >
-              <Search className="h-5 w-5" />
-            </motion.button>
-          </div>
         </div>
         
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div 
-              className="md:hidden mt-4 py-4 bg-white border-t border-black/20"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <nav className="flex flex-col space-y-4">
-                <div className="px-4">
-                  <p className="font-medium text-black mb-2">Categories</p>
-                  <div className="ml-4 flex flex-col space-y-2">
-                    {categories.map((category) => (
-                      <motion.button 
-                        key={category}
-                        onClick={() => navigateToCategory(category)}
-                        className="text-left text-gray-700 hover:text-black flex items-center"
-                        whileHover={{ x: 5 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ChevronRight className="h-4 w-4 mr-1" />
-                        {category}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              </nav>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Mobile navigation buttons */}
+        {isMobile && (
+          <div className="flex justify-between w-full max-w-xs mx-auto mt-4">
+            <CircularNavButton 
+              icon={<Home className="h-5 w-5" />} 
+              label="Home" 
+              onClick={navigateToHome} 
+            />
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <CircularNavButton 
+                  icon={<Menu className="h-5 w-5" />} 
+                  label="Categories" 
+                  onClick={() => {}} 
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-white mt-2">
+                {categories.map((category) => (
+                  <motion.div
+                    key={category}
+                    whileHover={{ backgroundColor: "#f3f4f6" }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <DropdownMenuItem 
+                      onClick={() => navigateToCategory(category)}
+                      className="cursor-pointer text-black"
+                    >
+                      {category}
+                    </DropdownMenuItem>
+                  </motion.div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <CircularNavButton 
+              icon={<Star className="h-5 w-5" />} 
+              label="Featured" 
+              onClick={() => scrollToSection("featured")} 
+            />
+            
+            <CircularNavButton 
+              icon={<Clock className="h-5 w-5" />} 
+              label="New" 
+              onClick={() => scrollToSection("new-arrivals")} 
+            />
+            
+            <CircularNavButton 
+              icon={<Info className="h-5 w-5" />} 
+              label="About" 
+              onClick={() => navigateTo("/about")} 
+            />
+          </div>
+        )}
       </div>
       
       <CommandDialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
