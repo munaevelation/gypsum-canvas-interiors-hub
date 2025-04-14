@@ -2,28 +2,38 @@
 import { motion } from "framer-motion";
 
 const Loader = () => {
+  // Animation variants for the bubbles
+  const bubbleVariants = {
+    animate: (i: number) => ({
+      y: [0, -40, 0],
+      x: [0, i * 20, 0],
+      opacity: [0.3, 0.8, 0.3],
+      scale: [0.8, 1.2, 0.8],
+      transition: {
+        duration: 3 + i * 0.2,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay: i * 0.2
+      }
+    })
+  };
+
+  // Create an array of bubbles
+  const bubbles = Array.from({ length: 12 }).map((_, i) => ({
+    id: i,
+    size: 20 + Math.random() * 30,
+    initialX: (Math.random() - 0.5) * 300,
+    initialY: (Math.random() - 0.5) * 300,
+  }));
+
   return (
     <motion.div
-      className="fixed inset-0 flex items-center justify-center z-50"
+      className="fixed inset-0 flex items-center justify-center z-50 bg-black"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      animate={{
-        background: [
-          "linear-gradient(135deg, #8844ee, #b62fce)",
-          "linear-gradient(135deg, #b62fce, #ff66c4)",
-          "linear-gradient(135deg, #ff66c4, #8844ee)",
-          "linear-gradient(135deg, #8844ee, #b62fce)"
-        ]
-      }}
-      transition={{
-        background: {
-          repeat: Infinity,
-          duration: 4,
-          ease: "linear"
-        }
-      }}
+      transition={{ duration: 0.5 }}
     >
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-2 relative z-10">
         <motion.h1
           className="text-5xl font-bold text-white"
           initial={{ opacity: 0, y: -20 }}
@@ -42,53 +52,66 @@ const Loader = () => {
         </motion.p>
       </div>
       
-      {/* Abstract animated background elements */}
-      <motion.div
-        className="absolute inset-0 -z-10 overflow-hidden opacity-40"
-        style={{ filter: "blur(40px)" }}
-      >
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-purple-500"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ 
-            repeat: Infinity, 
-            duration: 8,
+      {/* Animated bubbles */}
+      <div className="absolute inset-0 overflow-hidden">
+        {bubbles.map((bubble) => (
+          <motion.div
+            key={bubble.id}
+            className="absolute rounded-full bg-white opacity-20"
+            style={{
+              width: bubble.size,
+              height: bubble.size,
+              left: `calc(50% + ${bubble.initialX}px)`,
+              top: `calc(50% + ${bubble.initialY}px)`,
+            }}
+            custom={bubble.id % 5}
+            variants={bubbleVariants}
+            animate="animate"
+          />
+        ))}
+      </div>
+      
+      {/* Additional circle animation around the text */}
+      <motion.div 
+        className="absolute w-40 h-40 rounded-full border-2 border-white/20"
+        animate={{
+          rotate: 360,
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          rotate: {
+            duration: 10,
+            repeat: Infinity,
+            ease: "linear"
+          },
+          scale: {
+            duration: 3,
+            repeat: Infinity,
             ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-pink-500"
-          animate={{
-            x: [0, -80, 0],
-            y: [0, 80, 0],
-            scale: [1, 1.5, 1]
-          }}
-          transition={{ 
-            repeat: Infinity, 
-            duration: 7,
-            ease: "easeInOut",
-            delay: 0.5
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 right-1/3 w-64 h-64 rounded-full bg-violet-500"
-          animate={{
-            x: [0, 60, 0],
-            y: [0, 60, 0],
-            scale: [1, 1.3, 1]
-          }}
-          transition={{ 
-            repeat: Infinity, 
-            duration: 9,
-            ease: "easeInOut",
-            delay: 1
-          }}
-        />
-      </motion.div>
+          }
+        }}
+      />
+      
+      {/* Second circle animation around the text */}
+      <motion.div 
+        className="absolute w-60 h-60 rounded-full border border-white/10"
+        animate={{
+          rotate: -360,
+          scale: [1, 1.05, 1],
+        }}
+        transition={{
+          rotate: {
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          },
+          scale: {
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }
+        }}
+      />
     </motion.div>
   );
 };
