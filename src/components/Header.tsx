@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, Menu, X, ChevronDown, ChevronRight, Home, Info, Star, Clock, MessageSquare } from "lucide-react";
@@ -77,6 +78,7 @@ const Header = () => {
   const navigateToCategory = (category: string) => {
     navigate(`/?category=${encodeURIComponent(category)}`);
     setIsMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const navigateToHome = () => {
@@ -90,6 +92,7 @@ const Header = () => {
     
     if (location.pathname !== "/") {
       navigate(`/?section=${sectionId}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     
@@ -104,8 +107,10 @@ const Header = () => {
     setIsMenuOpen(false);
   };
   
-  const reloadPage = () => {
-    window.location.reload();
+  const navigateTo = (path: string) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setIsMenuOpen(false);
   };
   
   useEffect(() => {
@@ -120,12 +125,15 @@ const Header = () => {
         }, 100);
       }
     }
+    // Always scroll to top on navigation
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location]);
 
   const handleProductSelect = (productId: number) => {
     navigate(`/product/${productId}`);
     setIsSearchOpen(false);
     setSearchQuery("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const NavLink = ({ to, onClick, children }: { to?: string; onClick?: () => void; children: React.ReactNode }) => (
@@ -175,6 +183,37 @@ const Header = () => {
           >
             Gypsum<span className="text-black">Carnis</span>
           </div>
+          
+          {/* Mobile Circular Nav - Moved just below logo */}
+          {isMobile && (
+            <div className="md:hidden flex justify-between w-full max-w-xs mx-auto mt-2">
+              <CircularNavButton 
+                icon={<Home className="h-5 w-5" />} 
+                label="Home" 
+                onClick={navigateToHome} 
+              />
+              <CircularNavButton 
+                icon={<Star className="h-5 w-5" />} 
+                label="Featured" 
+                onClick={() => scrollToSection("featured")} 
+              />
+              <CircularNavButton 
+                icon={<Clock className="h-5 w-5" />} 
+                label="New" 
+                onClick={() => scrollToSection("new-arrivals")} 
+              />
+              <CircularNavButton 
+                icon={<Info className="h-5 w-5" />} 
+                label="About" 
+                onClick={() => navigateTo("/about")} 
+              />
+              <CircularNavButton 
+                icon={<MessageSquare className="h-5 w-5" />} 
+                label="Contact" 
+                onClick={() => window.open("https://wa.me/1234567890", "_blank")} 
+              />
+            </div>
+          )}
           
           <nav className="hidden md:flex items-center space-x-6">
             <NavLink onClick={navigateToHome}>Home</NavLink>
@@ -249,13 +288,6 @@ const Header = () => {
             >
               <Search className="h-5 w-5" />
             </motion.button>
-            <motion.button
-              onClick={toggleMenu}
-              className="text-black hover:text-gray-700 focus:outline-none"
-              whileTap={{ scale: 0.95 }}
-            >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </motion.button>
           </div>
         </div>
         
@@ -268,44 +300,7 @@ const Header = () => {
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              {isMobile && (
-                <div className="flex justify-between px-4 pb-4 mb-4 border-b border-black/10">
-                  <CircularNavButton 
-                    icon={<Home className="h-5 w-5" />} 
-                    label="Home" 
-                    onClick={navigateToHome} 
-                  />
-                  <CircularNavButton 
-                    icon={<Star className="h-5 w-5" />} 
-                    label="Featured" 
-                    onClick={() => scrollToSection("featured")} 
-                  />
-                  <CircularNavButton 
-                    icon={<Clock className="h-5 w-5" />} 
-                    label="New" 
-                    onClick={() => scrollToSection("new-arrivals")} 
-                  />
-                  <CircularNavButton 
-                    icon={<Info className="h-5 w-5" />} 
-                    label="About" 
-                    onClick={() => navigate("/about")} 
-                  />
-                  <CircularNavButton 
-                    icon={<MessageSquare className="h-5 w-5" />} 
-                    label="Contact" 
-                    onClick={() => window.open("https://wa.me/1234567890", "_blank")} 
-                  />
-                </div>
-              )}
-              
               <nav className="flex flex-col space-y-4">
-                <button 
-                  onClick={navigateToHome} 
-                  className="text-left text-black hover:text-gray-700 font-medium px-4 py-2"
-                >
-                  Home
-                </button>
-                
                 <div className="px-4">
                   <p className="font-medium text-black mb-2">Categories</p>
                   <div className="ml-4 flex flex-col space-y-2">
@@ -323,36 +318,6 @@ const Header = () => {
                     ))}
                   </div>
                 </div>
-                
-                <button 
-                  onClick={() => scrollToSection("featured")} 
-                  className="text-left text-black hover:text-gray-700 font-medium px-4 py-2"
-                >
-                  Featured
-                </button>
-                
-                <button 
-                  onClick={() => scrollToSection("new-arrivals")}
-                  className="text-left text-black hover:text-gray-700 font-medium px-4 py-2"
-                >
-                  New Arrivals
-                </button>
-                
-                <Link
-                  to="/about"
-                  className="text-left text-black hover:text-gray-700 font-medium px-4 py-2"
-                >
-                  About
-                </Link>
-                
-                <a 
-                  href="https://wa.me/1234567890" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-black hover:text-gray-700 font-medium px-4 py-2 flex items-center"
-                >
-                  Contact
-                </a>
               </nav>
             </motion.div>
           )}

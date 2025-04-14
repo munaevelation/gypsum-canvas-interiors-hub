@@ -18,7 +18,9 @@ import {
   X,
   MoveHorizontal,
   Upload,
-  Video
+  Video,
+  Save,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -32,6 +34,7 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
   const [galleryImages, setGalleryImages] = useState<string[]>(
     getProductGalleryImages(productId) || []
   );
+  const [isUpdating, setIsUpdating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   
@@ -52,7 +55,6 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
       const result = reader.result as string;
       const updatedGallery = [...galleryImages, result];
       setGalleryImages(updatedGallery);
-      updateProductGallery(productId, updatedGallery);
       toast.success("Image added to gallery");
     };
     reader.readAsDataURL(file);
@@ -78,7 +80,6 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
       const result = reader.result as string;
       const updatedGallery = [...galleryImages, result];
       setGalleryImages(updatedGallery);
-      updateProductGallery(productId, updatedGallery);
       toast.success("Video added to gallery");
     };
     reader.readAsDataURL(file);
@@ -90,7 +91,6 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
   const handleRemoveImage = (index: number) => {
     const updatedGallery = galleryImages.filter((_, i) => i !== index);
     setGalleryImages(updatedGallery);
-    updateProductGallery(productId, updatedGallery);
     toast.success("Item removed from gallery");
   };
   
@@ -102,7 +102,19 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
     items.splice(result.destination.index, 0, reorderedItem);
     
     setGalleryImages(items);
-    updateProductGallery(productId, items);
+  };
+  
+  const handleUpdateGallery = () => {
+    setIsUpdating(true);
+    try {
+      updateProductGallery(productId, galleryImages);
+      toast.success("Gallery updated successfully");
+    } catch (error) {
+      toast.error("Failed to update gallery");
+      console.error(error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
   
   const isVideo = (src: string) => {
@@ -243,10 +255,25 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
         </div>
       </CardContent>
       
-      <CardFooter className="border-t border-black/20 bg-black/5 py-3 px-6 flex justify-between">
+      <CardFooter className="border-t border-black/20 bg-black/5 py-3 px-6 flex justify-between items-center">
         <p className="text-xs text-gray-500">
           {galleryImages.length} of 6 media items used
         </p>
+        <Button 
+          onClick={handleUpdateGallery} 
+          className="bg-black hover:bg-black/80 text-white"
+          disabled={isUpdating}
+        >
+          {isUpdating ? (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Updating...
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" /> Update Gallery
+            </>
+          )}
+        </Button>
       </CardFooter>
     </Card>
   );

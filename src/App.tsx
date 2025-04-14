@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Index from "./pages/Index";
@@ -19,6 +19,12 @@ const queryClient = new QueryClient();
 // Move all routing-related components inside the BrowserRouter
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const navigationType = useNavigationType();
+  
+  useEffect(() => {
+    // Scroll to the top whenever location changes, for all navigation types
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname, location.search]);
   
   return (
     <AnimatePresence mode="wait">
