@@ -16,6 +16,7 @@ import Loader from "./components/Loader";
 
 const queryClient = new QueryClient();
 
+// Move all routing-related components inside the BrowserRouter
 const AnimatedRoutes = () => {
   const location = useLocation();
   
