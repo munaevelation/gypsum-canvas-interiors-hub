@@ -75,11 +75,6 @@ const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(true);
-  
-  // Refs for scroll sections
-  const featuredRef = useRef<HTMLElement>(null);
-  const newArrivalsRef = useRef<HTMLElement>(null);
   
   // Check for direct product navigation
   useEffect(() => {
@@ -99,13 +94,6 @@ const Index = () => {
       );
       setCategoryProducts(filtered);
     }
-    
-    // Hide welcome animation after 4 seconds
-    const timer = setTimeout(() => {
-      setShowWelcomeAnimation(false);
-    }, 3000);
-    
-    return () => clearTimeout(timer);
   }, [activeCategory]);
   
   // Handle section scroll from URL parameters
@@ -142,18 +130,6 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white text-black">
       <Header />
-      
-      <AnimatePresence>
-        {showWelcomeAnimation && (
-          <motion.div 
-            className="fixed inset-0 flex items-center justify-center bg-black z-50"
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <AnimatedText text="Welcome to Gypsum Carnis" className="text-white" />
-          </motion.div>
-        )}
-      </AnimatePresence>
       
       <main className="flex-grow">
         {!activeCategory && (

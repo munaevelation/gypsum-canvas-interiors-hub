@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getCarouselImages, CarouselImage } from "@/services/dataService";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Hero = () => {
   const [carouselImages, setCarouselImages] = useState<CarouselImage[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     // Load carousel images from our data service
@@ -59,7 +61,7 @@ const Hero = () => {
   if (carouselImages.length === 0) return null;
   
   return (
-    <div className="relative w-full h-[500px] bg-gray-100 overflow-hidden">
+    <div className="relative w-full h-[500px] md:h-[500px] bg-gray-100 overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
@@ -71,7 +73,11 @@ const Hero = () => {
         >
           <div 
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${carouselImages[currentIndex].image})` }}
+            style={{ 
+              backgroundImage: `url(${carouselImages[currentIndex].image})`,
+              backgroundPosition: isMobile ? 'center' : 'center',
+              backgroundSize: isMobile ? 'cover' : 'cover'
+            }}
           >
             <div className="absolute inset-0 bg-black bg-opacity-40" />
           </div>
@@ -83,10 +89,10 @@ const Hero = () => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
               >
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
                   {carouselImages[currentIndex].title}
                 </h1>
-                <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
                   {carouselImages[currentIndex].subtitle}
                 </p>
                 <Link to={carouselImages[currentIndex].buttonLink}>

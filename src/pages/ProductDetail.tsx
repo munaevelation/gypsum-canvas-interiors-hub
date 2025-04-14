@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getProductById, Product } from "@/services/dataService";
+import { getProductById, getProductGalleryImages, Product } from "@/services/dataService";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,15 +19,8 @@ const ProductDetail = () => {
   const [mainImage, setMainImage] = useState<string>("");
   const navigate = useNavigate();
   
-  // Sample additional images for demonstration
-  const additionalImages = [
-    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
-    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6",
-    "https://images.unsplash.com/photo-1600210492493-0946911123ea",
-    "https://images.unsplash.com/photo-1603203040289-611d79cb1fe7",
-    "https://images.unsplash.com/photo-1531835551805-16d864c8d311",
-    "https://images.unsplash.com/photo-1505796149773-5d216eb9ac6d"
-  ];
+  // Get additional images from data service
+  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
   
   useEffect(() => {
     if (id) {
@@ -34,6 +28,10 @@ const ProductDetail = () => {
       setProduct(productData);
       if (productData) {
         setMainImage(productData.image);
+        
+        // Get gallery images
+        const galleryImages = getProductGalleryImages(parseInt(id, 10)) || [];
+        setAdditionalImages(galleryImages);
       }
       setLoading(false);
     }
@@ -41,6 +39,14 @@ const ProductDetail = () => {
   
   const handleGoBack = () => {
     navigate(-1);
+  };
+  
+  const handleShareToWhatsapp = () => {
+    const productUrl = window.location.href;
+    const whatsappMessage = `Check out this product: ${product?.name} - ${productUrl}`;
+    const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(whatsappMessage)}`;
+    window.open(whatsappUrl, '_blank');
+    toast.success("Sharing link to WhatsApp");
   };
   
   if (loading) {
@@ -70,6 +76,9 @@ const ProductDetail = () => {
       </div>
     );
   }
+  
+  // Combine product main image with additional gallery images
+  const allImages = [product.image, ...additionalImages];
   
   return (
     <div className="min-h-screen flex flex-col bg-white text-black">
@@ -102,21 +111,8 @@ const ProductDetail = () => {
               <h3 className="text-lg font-semibold mb-3">Product Gallery</h3>
               <Carousel className="w-full">
                 <CarouselContent>
-                  {/* Include the main product image */}
-                  <CarouselItem className="basis-1/3 md:basis-1/4 lg:basis-1/6">
-                    <div 
-                      className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 ${mainImage === product.image ? 'border-black' : 'border-transparent'}`}
-                      onClick={() => setMainImage(product.image)}
-                    >
-                      <img 
-                        src={product.image} 
-                        alt={product.name} 
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  </CarouselItem>
-                  {/* Additional sample images */}
-                  {additionalImages.map((img, index) => (
+                  {/* Show all available images */}
+                  {allImages.map((img, index) => (
                     <CarouselItem key={index} className="basis-1/3 md:basis-1/4 lg:basis-1/6">
                       <div 
                         className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 ${mainImage === img ? 'border-black' : 'border-transparent'}`}
@@ -124,7 +120,7 @@ const ProductDetail = () => {
                       >
                         <img 
                           src={img} 
-                          alt={`${product.name} view ${index + 1}`} 
+                          alt={`${product.name} view ${index}`} 
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -177,10 +173,18 @@ const ProductDetail = () => {
               </div>
             </Card>
             
-            <div className="pt-4">
-              <Button className="w-full bg-black text-white hover:bg-black/80">
+            <div className="pt-4 space-y-4">
+              <Button 
+                className="w-full bg-black text-white hover:bg-black/80"
+                onClick={handleShareToWhatsapp}
+              >
+                <Share2 className="mr-2 h-4 w-4" />
                 Contact for Quote
               </Button>
+              
+              <p className="text-sm text-gray-500 text-center">
+                Click the button above to share this product on WhatsApp and request a quote
+              </p>
             </div>
           </div>
         </div>

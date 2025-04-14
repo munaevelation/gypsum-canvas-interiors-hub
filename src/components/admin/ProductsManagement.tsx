@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -42,6 +43,7 @@ import {
   Clock,
 } from "lucide-react";
 import ImageUpload from "./ImageUpload";
+import ProductGallery from "./ProductGallery";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { 
@@ -59,6 +61,7 @@ const ProductsManagement = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingProduct, setEditingProduct] = useState<number | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
   
   const [newProduct, setNewProduct] = useState<Omit<Product, "id">>({
     name: "",
@@ -184,6 +187,11 @@ const ProductsManagement = () => {
         [statusType]: false
       });
     }
+  };
+
+  const handleManageGallery = (productId: number) => {
+    setSelectedProduct(productId);
+    setShowGallery(true);
   };
 
   useEffect(() => {
@@ -353,6 +361,23 @@ const ProductsManagement = () => {
         </Card>
       )}
       
+      {/* Product Gallery Manager Dialog */}
+      <Dialog open={showGallery} onOpenChange={setShowGallery}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="text-black">Product Gallery Manager</DialogTitle>
+            <DialogDescription>
+              Add or remove additional images for this product.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedProduct !== null && (
+            <div className="py-4">
+              <ProductGallery productId={selectedProduct} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      
       <Card className="border-black/20 shadow-md bg-white">
         <CardHeader className="bg-black/5 border-b border-black/20">
           <CardTitle className="text-black">Products</CardTitle>
@@ -411,6 +436,14 @@ const ProductsManagement = () => {
                   <TableCell className="hidden md:table-cell">{product.dimensions}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-black hover:text-black hover:bg-black/10"
+                        onClick={() => handleManageGallery(product.id)}
+                      >
+                        <ImageIcon className="h-4 w-4" />
+                      </Button>
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button 

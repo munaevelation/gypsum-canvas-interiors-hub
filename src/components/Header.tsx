@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Search, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
+import { Search, Menu, X, ChevronDown, ChevronRight, Home, Info, Star, Clock, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/command";
 import { toast } from "sonner";
 import { searchProducts, Product } from "@/services/dataService";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const categories = [
   "Ceiling Cornices",
@@ -40,6 +41,7 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -149,16 +151,29 @@ const Header = () => {
       )}
     </motion.div>
   );
+
+  const CircularNavButton = ({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) => (
+    <motion.button
+      onClick={onClick}
+      className="flex flex-col items-center"
+      whileTap={{ scale: 0.95 }}
+    >
+      <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center mb-1 shadow-md">
+        {icon}
+      </div>
+      <span className="text-xs text-black">{label}</span>
+    </motion.button>
+  );
   
   return (
-    <header className="bg-black text-white shadow-md sticky top-0 z-50">
+    <header className="bg-white text-black shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div 
             onClick={navigateToHome} 
-            className="text-2xl font-bold text-white cursor-pointer"
+            className="text-2xl font-bold text-black cursor-pointer"
           >
-            Gypsum<span className="text-white">Carnis</span>
+            Gypsum<span className="text-black">Carnis</span>
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
@@ -167,7 +182,7 @@ const Header = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <motion.button 
-                  className="flex items-center text-white hover:text-gray-300 font-medium"
+                  className="flex items-center text-gray-700 hover:text-black font-medium"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}
@@ -203,7 +218,7 @@ const Header = () => {
               href="https://wa.me/1234567890" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-white hover:text-gray-300 font-medium"
+              className="text-gray-700 hover:text-black font-medium"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
@@ -215,7 +230,7 @@ const Header = () => {
           <div className="hidden md:flex items-center">
             <Button 
               variant="outline" 
-              className="relative h-9 px-4 text-sm border-white text-white hover:bg-white/10"
+              className="relative h-9 px-4 text-sm border-black text-black hover:bg-black/10"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-4 w-4 mr-2" />
@@ -229,14 +244,14 @@ const Header = () => {
           <div className="flex md:hidden items-center space-x-4">
             <motion.button
               onClick={() => setIsSearchOpen(true)}
-              className="text-white hover:text-gray-300 focus:outline-none"
+              className="text-black hover:text-gray-700 focus:outline-none"
               whileTap={{ scale: 0.95 }}
             >
               <Search className="h-5 w-5" />
             </motion.button>
             <motion.button
               onClick={toggleMenu}
-              className="text-white hover:text-gray-300 focus:outline-none"
+              className="text-black hover:text-gray-700 focus:outline-none"
               whileTap={{ scale: 0.95 }}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -247,28 +262,58 @@ const Header = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div 
-              className="md:hidden mt-4 py-4 bg-black border-t border-white/20"
+              className="md:hidden mt-4 py-4 bg-white border-t border-black/20"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
+              {isMobile && (
+                <div className="flex justify-between px-4 pb-4 mb-4 border-b border-black/10">
+                  <CircularNavButton 
+                    icon={<Home className="h-5 w-5" />} 
+                    label="Home" 
+                    onClick={navigateToHome} 
+                  />
+                  <CircularNavButton 
+                    icon={<Star className="h-5 w-5" />} 
+                    label="Featured" 
+                    onClick={() => scrollToSection("featured")} 
+                  />
+                  <CircularNavButton 
+                    icon={<Clock className="h-5 w-5" />} 
+                    label="New" 
+                    onClick={() => scrollToSection("new-arrivals")} 
+                  />
+                  <CircularNavButton 
+                    icon={<Info className="h-5 w-5" />} 
+                    label="About" 
+                    onClick={() => navigate("/about")} 
+                  />
+                  <CircularNavButton 
+                    icon={<MessageSquare className="h-5 w-5" />} 
+                    label="Contact" 
+                    onClick={() => window.open("https://wa.me/1234567890", "_blank")} 
+                  />
+                </div>
+              )}
+              
               <nav className="flex flex-col space-y-4">
                 <button 
                   onClick={navigateToHome} 
-                  className="text-left text-white hover:text-gray-300 font-medium px-4 py-2"
+                  className="text-left text-black hover:text-gray-700 font-medium px-4 py-2"
                 >
                   Home
                 </button>
                 
                 <div className="px-4">
-                  <p className="font-medium text-white mb-2">Categories</p>
+                  <p className="font-medium text-black mb-2">Categories</p>
                   <div className="ml-4 flex flex-col space-y-2">
                     {categories.map((category) => (
                       <motion.button 
                         key={category}
                         onClick={() => navigateToCategory(category)}
-                        className="text-left text-gray-300 hover:text-white flex items-center"
+                        className="text-left text-gray-700 hover:text-black flex items-center"
                         whileHover={{ x: 5 }}
                         transition={{ duration: 0.2 }}
                       >
@@ -281,21 +326,21 @@ const Header = () => {
                 
                 <button 
                   onClick={() => scrollToSection("featured")} 
-                  className="text-left text-white hover:text-gray-300 font-medium px-4 py-2"
+                  className="text-left text-black hover:text-gray-700 font-medium px-4 py-2"
                 >
                   Featured
                 </button>
                 
                 <button 
                   onClick={() => scrollToSection("new-arrivals")}
-                  className="text-left text-white hover:text-gray-300 font-medium px-4 py-2"
+                  className="text-left text-black hover:text-gray-700 font-medium px-4 py-2"
                 >
                   New Arrivals
                 </button>
                 
                 <Link
                   to="/about"
-                  className="text-left text-white hover:text-gray-300 font-medium px-4 py-2"
+                  className="text-left text-black hover:text-gray-700 font-medium px-4 py-2"
                 >
                   About
                 </Link>
@@ -304,7 +349,7 @@ const Header = () => {
                   href="https://wa.me/1234567890" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-white hover:text-gray-300 font-medium px-4 py-2 flex items-center"
+                  className="text-black hover:text-gray-700 font-medium px-4 py-2 flex items-center"
                 >
                   Contact
                 </a>

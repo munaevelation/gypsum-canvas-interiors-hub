@@ -294,3 +294,21 @@ export const searchProducts = (query: string): Product[] => {
     product.category.toLowerCase().includes(searchTerm)
   );
 };
+
+// Get product gallery images
+export const getProductGalleryImages = (productId: number): string[] => {
+  const galleries = localStorage.getItem('productGalleries');
+  if (!galleries) return [];
+  
+  const parsedGalleries = JSON.parse(galleries);
+  return parsedGalleries[productId] || [];
+};
+
+// Update product gallery
+export const updateProductGallery = (productId: number, images: string[]): void => {
+  const galleries = localStorage.getItem('productGalleries');
+  let parsedGalleries = galleries ? JSON.parse(galleries) : {};
+  
+  parsedGalleries[productId] = images;
+  localStorage.setItem('productGalleries', JSON.stringify(parsedGalleries));
+};
