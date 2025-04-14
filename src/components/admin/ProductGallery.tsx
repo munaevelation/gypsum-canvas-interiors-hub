@@ -58,7 +58,7 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
     reader.readAsDataURL(file);
     
     // Reset input
-    if (e.target) e.target.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
   
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +84,7 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
     reader.readAsDataURL(file);
     
     // Reset input
-    if (e.target) e.target.value = '';
+    if (videoInputRef.current) videoInputRef.current.value = '';
   };
   
   const handleRemoveImage = (index: number) => {

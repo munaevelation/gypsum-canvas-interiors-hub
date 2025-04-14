@@ -1,17 +1,22 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Ruler, Tag, Clock } from "lucide-react";
 import { getNewArrivals, Product } from "@/services/dataService";
+import { useNavigate } from "react-router-dom";
 
 const NewArrivals = () => {
   const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+  const navigate = useNavigate();
   
   useEffect(() => {
     const products = getNewArrivals();
     setNewArrivals(products);
   }, []);
+
+  const handleProductClick = (productId: number) => {
+    navigate(`/product/${productId}`);
+  };
 
   return (
     <section id="new-arrivals" className="py-16 bg-gray-50">
@@ -23,7 +28,8 @@ const NewArrivals = () => {
             {newArrivals.map((product) => (
               <Card 
                 key={product.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col bg-white border-gray-200"
+                className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col bg-white border-gray-200 cursor-pointer"
+                onClick={() => handleProductClick(product.id)}
               >
                 <div className="h-48 overflow-hidden relative">
                   <img 
