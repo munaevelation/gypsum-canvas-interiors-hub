@@ -162,19 +162,23 @@ const Header = () => {
     </motion.button>
   );
   
+  const navigateToAbout = () => {
+    navigate('/about');
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className="bg-white text-black shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
-        {/* Top row with logo and search bar */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 w-full">
           <div 
             onClick={navigateToHome} 
-            className="text-xl md:text-2xl font-bold text-black cursor-pointer whitespace-nowrap"
+            className="text-xl md:text-2xl font-bold text-black cursor-pointer whitespace-nowrap flex-shrink-0"
           >
             Gypsum<span className="text-black">Carnis</span>
           </div>
           
-          {/* Search bar - visible on both mobile and desktop */}
           <div className="flex-grow max-w-md">
             <Button 
               variant="outline" 
@@ -190,8 +194,7 @@ const Header = () => {
           </div>
         </div>
         
-        {/* Desktop navigation */}
-        <nav className="hidden md:flex items-center space-x-6 mt-4">
+        <nav className="hidden md:flex items-center justify-center space-x-6 mt-4">
           <NavLink onClick={navigateToHome}>Home</NavLink>
           
           <DropdownMenu>
@@ -224,13 +227,11 @@ const Header = () => {
           </DropdownMenu>
           
           <NavLink onClick={() => scrollToSection("featured")}>Featured</NavLink>
-          
           <NavLink onClick={() => scrollToSection("new-arrivals")}>New Arrivals</NavLink>
-          
           <NavLink onClick={() => scrollToSection("contact")}>Contact</NavLink>
+          <NavLink onClick={navigateToAbout}>About</NavLink>
         </nav>
         
-        {/* Mobile navigation buttons */}
         {isMobile && (
           <div className="flex justify-between w-full max-w-xs mx-auto mt-4">
             <CircularNavButton 
@@ -248,7 +249,7 @@ const Header = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent 
-                className="w-56 bg-white mt-2 border border-gray-200 shadow-lg"
+                className="w-56 bg-white mt-2 border border-gray-200 shadow-lg z-50"
                 align="center"
               >
                 {categories.map((category) => (
@@ -276,9 +277,15 @@ const Header = () => {
             />
             
             <CircularNavButton 
+              icon={<MessageSquare className="h-5 w-5" />} 
+              label="Contact" 
+              onClick={() => scrollToSection("contact")} 
+            />
+            
+            <CircularNavButton 
               icon={<Info className="h-5 w-5" />} 
               label="About" 
-              onClick={() => navigateTo("/about")} 
+              onClick={() => navigateToAbout()} 
             />
           </div>
         )}
