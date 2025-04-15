@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { 
   Card, 
@@ -67,9 +66,15 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
     
     const file = e.target.files[0];
     
-    // Check file size (max 50MB for videos)
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("Video is too large. Maximum size is 50MB");
+    // Check file size (max 100MB for videos)
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error("Video is too large. Maximum size is 100MB");
+      return;
+    }
+    
+    // Check file type
+    if (!file.type.startsWith('video/')) {
+      toast.error("Please upload a valid video file");
       return;
     }
     
@@ -103,13 +108,33 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
   };
   
   const handleUpdateGallery = () => {
+    if (!productId) {
+      toast.error("No product selected");
+      return;
+    }
+
+    if (galleryImages.length === 0) {
+      toast.error("Please add at least one image to the gallery");
+      return;
+    }
+
     setIsUpdating(true);
     try {
       updateProductGallery(productId, galleryImages);
       toast.success("Gallery updated successfully");
     } catch (error) {
-      toast.error("Failed to update gallery");
-      console.error(error);
+      console.error("Gallery update error:", error);
+      if (error instanceof Error) {
+        if (error.message.includes('Storage quota exceeded')) {
+          toast.error("Storage limit reached. Please try with fewer images.");
+        } else if (error.message.includes('localStorage is not available')) {
+          toast.error("Browser storage is not available. Please check your browser settings.");
+        } else {
+          toast.error("Failed to update gallery. Please try again.");
+        }
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setIsUpdating(false);
     }
@@ -123,7 +148,7 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
   return (
     <Card className="border-black/20 shadow-md bg-white">
       <CardHeader className="bg-black/5 border-b border-black/20">
-        <CardTitle className="text-black">Product Gallery Images</CardTitle>
+        <CardTitle className="text-black">Product Gallery</CardTitle>
         <CardDescription>
           Manage additional images and videos for this product. Add up to 6 media items for the product carousel.
         </CardDescription>
@@ -137,7 +162,7 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
               <div className="flex-1">
                 <Button 
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-black hover:bg-black/80 text-white w-full"
+                  className="bg-gradient-to-r from-[var(--color-imperial-blue)] to-[var(--color-ruby)] text-white hover:opacity-90 transition-all duration-300 w-full"
                   disabled={galleryImages.length >= 6}
                 >
                   <ImageIcon className="h-4 w-4 mr-2" /> Upload Image
@@ -155,7 +180,7 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
               <div className="flex-1">
                 <Button 
                   onClick={() => videoInputRef.current?.click()}
-                  className="bg-black hover:bg-black/80 text-white w-full"
+                  className="bg-gradient-to-r from-[var(--color-imperial-blue)] to-[var(--color-ruby)] text-white hover:opacity-90 transition-all duration-300 w-full"
                   disabled={galleryImages.length >= 6}
                 >
                   <Video className="h-4 w-4 mr-2" /> Upload Video
@@ -208,14 +233,20 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
                             >
                               <div className="h-16 w-16 flex-shrink-0 rounded overflow-hidden mr-3">
                                 {isVideo(media) ? (
-                                  <video 
-                                    className="h-full w-full object-cover"
-                                    controls
-                                    muted
-                                  >
-                                    <source src={media} />
-                                    Your browser does not support the video tag.
-                                  </video>
+                                  <div className="relative h-full w-full bg-gray-800">
+                                    <video 
+                                      className="h-full w-full object-cover"
+                                      muted
+                                      loop
+                                      playsInline
+                                    >
+                                      <source src={media} type="video/mp4" />
+                                      Your browser does not support the video tag.
+                                    </video>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <Video className="h-6 w-6 text-white/80" />
+                                    </div>
+                                  </div>
                                 ) : (
                                   <img 
                                     src={media} 
@@ -227,8 +258,8 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
                                   />
                                 )}
                               </div>
-                              <div className="flex-grow">
-                                <p className="text-sm text-gray-600">
+                              <div className="flex-1">
+                                <p className="text-sm text-black">
                                   {isVideo(media) ? 'Video' : 'Image'} {index + 1}
                                 </p>
                               </div>
@@ -260,7 +291,7 @@ const ProductGallery = ({ productId }: ProductGalleryProps) => {
         </p>
         <Button 
           onClick={handleUpdateGallery} 
-          className="bg-black hover:bg-black/80 text-white"
+          className="bg-gradient-to-r from-[var(--color-imperial-blue)] to-[var(--color-ruby)] text-white hover:opacity-90 transition-all duration-300"
           disabled={isUpdating}
         >
           {isUpdating ? (

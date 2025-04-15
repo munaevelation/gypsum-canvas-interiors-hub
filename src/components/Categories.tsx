@@ -1,60 +1,25 @@
-
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-
-const categories = [
-  {
-    id: 1,
-    name: "Ceiling Cornices",
-    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    description: "Elegant ceiling trim designs to enhance your room's perimeter."
-  },
-  {
-    id: 2,
-    name: "Wall Panels",
-    image: "https://images.unsplash.com/photo-1600210492493-0946911123ea?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    description: "Add texture and dimension to your walls with decorative panels."
-  },
-  {
-    id: 3,
-    name: "Light Troughs",
-    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    description: "Create ambient lighting with our recessed ceiling designs."
-  },
-  {
-    id: 4,
-    name: "Columns & Pillars",
-    image: "https://images.unsplash.com/photo-1505796149773-5d216eb9ac6d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    description: "Classic and modern column designs for architectural accents."
-  },
-  {
-    id: 5,
-    name: "Ceiling Medallions",
-    image: "https://images.unsplash.com/photo-1603203040289-611d79cb1fe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    description: "Ornate centerpieces for chandeliers and ceiling fixtures."
-  },
-  {
-    id: 6,
-    name: "Decorative Mouldings",
-    image: "https://images.unsplash.com/photo-1595428774932-8b4ae3496ea1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    description: "Versatile trim options for walls, ceilings, and transitions."
-  },
-  {
-    id: 7,
-    name: "3D Panels",
-    image: "https://images.unsplash.com/photo-1601084881623-cdf9a8ea242c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    description: "Contemporary wall designs with striking three-dimensional patterns."
-  },
-  {
-    id: 8,
-    name: "Modern Trims",
-    image: "https://images.unsplash.com/photo-1594126415003-9ded1a4f3f62?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-    description: "Sleek and minimal trim options for modern interiors."
-  }
-];
+import { useEffect, useState } from "react";
+import { getCategories } from "@/services/dataService";
 
 const Categories = () => {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState<Array<{
+    id: number;
+    name: string;
+    image: string;
+    description: string;
+  }>>([]);
+  
+  useEffect(() => {
+    const loadCategories = () => {
+      const categoryData = getCategories();
+      setCategories(categoryData);
+    };
+    
+    loadCategories();
+  }, []);
   
   const handleCategoryClick = (categoryName: string) => {
     navigate(`/?category=${encodeURIComponent(categoryName)}`);

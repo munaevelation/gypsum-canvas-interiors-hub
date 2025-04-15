@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -30,11 +29,13 @@ import {
   deleteCarouselImage,
   moveCarouselImageUp,
   moveCarouselImageDown,
-  CarouselImage
+  CarouselImage,
+  getCategoryNames
 } from "@/services/dataService";
 
 const CarouselManagement = () => {
   const [carouselImages, setCarouselImages] = useState<CarouselImage[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingImage, setEditingImage] = useState<number | null>(null);
   
@@ -43,17 +44,23 @@ const CarouselManagement = () => {
     title: "",
     subtitle: "",
     buttonText: "Shop Now",
-    buttonLink: "/?section=featured"
+    buttonLink: "/?category=Ceiling Cornices"
   });
   
-  // Load images on component mount
+  // Load images and categories on component mount
   useEffect(() => {
     loadImages();
+    loadCategories();
   }, []);
   
   const loadImages = () => {
     const imageData = getCarouselImages();
     setCarouselImages(imageData);
+  };
+
+  const loadCategories = () => {
+    const categoryNames = getCategoryNames();
+    setCategories(categoryNames);
   };
   
   const handleAddImage = () => {
@@ -63,7 +70,7 @@ const CarouselManagement = () => {
       title: "",
       subtitle: "",
       buttonText: "Shop Now",
-      buttonLink: "/?section=featured"
+      buttonLink: "/?category=Ceiling Cornices"
     });
   };
   
@@ -141,6 +148,13 @@ const CarouselManagement = () => {
     setEditingImage(null);
     setIsAdding(false);
   };
+
+  const handleCategoryChange = (category: string) => {
+    setNewImage({
+      ...newImage,
+      buttonLink: `/?category=${encodeURIComponent(category)}`
+    });
+  };
   
   return (
     <div className="space-y-6">
@@ -164,7 +178,7 @@ const CarouselManagement = () => {
               Upload an image and enter the details for the carousel slide.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 pt-6">
+          <CardContent className="space-y-6 pt-6">
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
                 <ImageUpload 
@@ -207,14 +221,25 @@ const CarouselManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="buttonLink" className="font-medium text-gray-700">Button Link</Label>
-                <Input 
-                  id="buttonLink" 
-                  value={newImage.buttonLink}
-                  onChange={(e) => setNewImage({...newImage, buttonLink: e.target.value})}
-                  placeholder="e.g. /?category=Wall Panels"
-                  className="border-gray-300 focus-visible:ring-black"
-                />
+                <Label className="font-medium text-gray-700">Category Link</Label>
+                <div className="space-y-2">
+                  {categories.map((category) => (
+                    <div key={category} className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id={`category-${category}`}
+                        name="category"
+                        value={category}
+                        checked={newImage.buttonLink === `/?category=${encodeURIComponent(category)}`}
+                        onChange={() => handleCategoryChange(category)}
+                        className="h-4 w-4 text-black border-gray-300 focus:ring-black"
+                      />
+                      <Label htmlFor={`category-${category}`} className="text-gray-700">
+                        {category}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </CardContent>
@@ -233,7 +258,7 @@ const CarouselManagement = () => {
       )}
       
       {/* Images Table */}
-      <Card className="border-gray-200 shadow-md bg-white">
+      <Card className="border-gray-200 shadow-lg bg-white">
         <CardHeader className="bg-gray-50 border-b border-gray-200">
           <CardTitle className="text-black">Carousel Images</CardTitle>
           <CardDescription>
@@ -294,7 +319,15 @@ const CarouselManagement = () => {
                   </TableCell>
                   <TableCell className="font-medium">{image.title || '-'}</TableCell>
                   <TableCell className="hidden md:table-cell">{image.subtitle || '-'}</TableCell>
-                  <TableCell className="hidden md:table-cell">{image.buttonText || '-'}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">{image.buttonText}</span>
+                      <span className="text-xs text-gray-500">→</span>
+                      <span className="text-sm text-gray-600">
+                        {image.buttonLink.split('=')[1]?.replace(/%20/g, ' ')}
+                      </span>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
                       <Button 

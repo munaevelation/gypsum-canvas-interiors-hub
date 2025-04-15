@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -31,7 +30,11 @@ import {
   Category
 } from "@/services/dataService";
 
-const CategoriesManagement = () => {
+interface CategoriesManagementProps {
+  buttonClassName?: string;
+}
+
+const CategoriesManagement = ({ buttonClassName }: CategoriesManagementProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingCategory, setEditingCategory] = useState<number | null>(null);
@@ -125,11 +128,11 @@ const CategoriesManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-[#8B5CF6]">Categories Management</h2>
+        <h2 className="text-2xl font-bold text-black">Categories Management</h2>
         <Button 
           onClick={handleAddCategory} 
           disabled={isAdding || editingCategory !== null}
-          className="bg-[#9b87f5] hover:bg-[#7E69AB]"
+          className="bg-gradient-to-r from-[var(--color-imperial-blue)] to-[var(--color-ruby)] text-white hover:opacity-90 transition-all duration-300"
         >
           <Plus className="mr-2 h-4 w-4" /> Add Category
         </Button>
@@ -137,34 +140,36 @@ const CategoriesManagement = () => {
       
       {/* Add/Edit Category Form */}
       {(isAdding || editingCategory !== null) && (
-        <Card className="border-[#9b87f5]/20 shadow-lg bg-white">
-          <CardHeader className="bg-gradient-to-r from-[#9b87f5]/10 to-[#8B5CF6]/10 border-b border-[#9b87f5]/20">
-            <CardTitle className="text-[#8B5CF6]">{isAdding ? "Add New Category" : "Edit Category"}</CardTitle>
-            <CardDescription>
+        <Card className="border-black/20 shadow-lg bg-white">
+          <CardHeader className="bg-black/5 border-b border-black/20">
+            <CardTitle className="text-black">
+              {isAdding ? "Add New Category" : "Edit Category"}
+            </CardTitle>
+            <CardDescription className="text-black/70">
               Enter the details for the category below.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 pt-6">
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="font-medium text-gray-700">Category Name <span className="text-red-500">*</span></Label>
+                <Label htmlFor="name" className="font-medium text-black">Category Name <span className="text-red-500">*</span></Label>
                 <Input 
                   id="name" 
                   value={newCategory.name}
                   onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
                   placeholder="e.g. Wall Panels"
-                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
+                  className="border-black/30 focus-visible:ring-black"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="description" className="font-medium text-gray-700">Description</Label>
+                <Label htmlFor="description" className="font-medium text-black">Description</Label>
                 <Textarea 
                   id="description" 
                   value={newCategory.description}
                   onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
                   placeholder="Enter category description here..."
-                  className="border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]"
+                  className="border-black/30 focus-visible:ring-black"
                 />
               </div>
               
@@ -176,13 +181,17 @@ const CategoriesManagement = () => {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between border-t border-[#9b87f5]/20 py-4">
-            <Button variant="outline" onClick={handleCancelEdit} className="border-[#9b87f5]/30">
+          <CardFooter className="flex justify-between border-t border-black/20 py-4">
+            <Button 
+              variant="outline" 
+              onClick={handleCancelEdit} 
+              className="border-black/30 text-black hover:bg-black/5"
+            >
               <X className="mr-2 h-4 w-4" /> Cancel
             </Button>
             <Button 
               onClick={isAdding ? handleSaveCategory : handleUpdateCategory}
-              className="bg-[#9b87f5] hover:bg-[#7E69AB]"
+              className="bg-gradient-to-r from-[var(--color-imperial-blue)] to-[var(--color-ruby)] text-white hover:opacity-90 transition-all duration-300"
             >
               <Save className="mr-2 h-4 w-4" /> {isAdding ? "Save Category" : "Update Category"}
             </Button>
@@ -191,10 +200,10 @@ const CategoriesManagement = () => {
       )}
       
       {/* Categories Table */}
-      <Card className="border-[#9b87f5]/20 shadow-md bg-white">
-        <CardHeader className="bg-gradient-to-r from-[#9b87f5]/10 to-[#8B5CF6]/10 border-b border-[#9b87f5]/20">
-          <CardTitle className="text-[#8B5CF6]">Categories</CardTitle>
-          <CardDescription>
+      <Card className="border-black/20 shadow-md bg-white">
+        <CardHeader className="bg-black/5 border-b border-black/20">
+          <CardTitle className="text-black">Categories</CardTitle>
+          <CardDescription className="text-black/70">
             Manage your product categories here.
           </CardDescription>
         </CardHeader>
@@ -202,15 +211,15 @@ const CategoriesManagement = () => {
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow>
-                <TableHead className="w-[50px]">Image</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead className="hidden md:table-cell">Description</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[50px] text-black">Image</TableHead>
+                <TableHead className="text-black">Name</TableHead>
+                <TableHead className="hidden md:table-cell text-black">Description</TableHead>
+                <TableHead className="text-right text-black">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {categories.map((category) => (
-                <TableRow key={category.id} className="hover:bg-[#9b87f5]/5">
+                <TableRow key={category.id} className="hover:bg-black/5">
                   <TableCell>
                     <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
                       {category.image ? (
@@ -226,8 +235,8 @@ const CategoriesManagement = () => {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell className="hidden md:table-cell">{category.description}</TableCell>
+                  <TableCell className="font-medium text-black">{category.name}</TableCell>
+                  <TableCell className="hidden md:table-cell text-black">{category.description}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
                       <Button 
@@ -235,7 +244,7 @@ const CategoriesManagement = () => {
                         size="sm"
                         onClick={() => handleEditCategory(category.id)}
                         disabled={isAdding || editingCategory !== null}
-                        className="text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+                        className="text-black hover:bg-black/10"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -244,7 +253,7 @@ const CategoriesManagement = () => {
                         size="sm"
                         onClick={() => handleDeleteCategory(category.id)}
                         disabled={isAdding || editingCategory !== null}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        className="text-red-500 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -254,7 +263,7 @@ const CategoriesManagement = () => {
               ))}
               {categories.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-6 text-gray-500">
+                  <TableCell colSpan={4} className="text-center py-6 text-black/70">
                     <div className="flex flex-col items-center justify-center py-4">
                       <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-2">
                         <Plus className="h-6 w-6 text-gray-400" />

@@ -306,9 +306,35 @@ export const getProductGalleryImages = (productId: number): string[] => {
 
 // Update product gallery
 export const updateProductGallery = (productId: number, images: string[]): void => {
-  const galleries = localStorage.getItem('productGalleries');
-  let parsedGalleries = galleries ? JSON.parse(galleries) : {};
-  
-  parsedGalleries[productId] = images;
-  localStorage.setItem('productGalleries', JSON.stringify(parsedGalleries));
+  try {
+    // Check if localStorage is available
+    if (typeof window === 'undefined' || !window.localStorage) {
+      throw new Error('localStorage is not available');
+    }
+
+    // Check if images array is valid
+    if (!Array.isArray(images)) {
+      throw new Error('Invalid images array');
+    }
+
+    // Get current galleries
+    const galleries = localStorage.getItem('productGalleries');
+    let parsedGalleries = galleries ? JSON.parse(galleries) : {};
+    
+    // Update the gallery for the specific product
+    parsedGalleries[productId] = images;
+    
+    // Try to save to localStorage
+    try {
+      localStorage.setItem('productGalleries', JSON.stringify(parsedGalleries));
+    } catch (error) {
+      if (error instanceof Error && error.name === 'QuotaExceededError') {
+        throw new Error('Storage quota exceeded. Please try with fewer images.');
+      }
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error updating product gallery:', error);
+    throw error;
+  }
 };

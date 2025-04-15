@@ -1,9 +1,8 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowLeft, Share2, Play, Pause } from "lucide-react";
+import { ArrowLeft, Share2, Play, Pause, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getProductById, getProductGalleryImages, Product } from "@/services/dataService";
 import { Badge } from "@/components/ui/badge";
@@ -114,26 +113,30 @@ const ProductDetail = () => {
           <div className="space-y-6">
             <div className="aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-50 relative">
               {isVideo(mainImage) ? (
-                <div className="relative h-full w-full">
+                <div className="relative h-full w-full group">
                   <video
                     ref={videoRef}
                     src={mainImage}
                     className="h-full w-full object-cover"
                     onClick={handleVideoClick}
                     playsInline
+                    loop
                     muted
                   />
                   <div 
-                    className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors cursor-pointer"
+                    className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors cursor-pointer"
                     onClick={handleVideoClick}
                   >
-                    <div className="bg-black/60 p-4 rounded-full">
+                    <div className="bg-black/60 p-4 rounded-full transform transition-transform group-hover:scale-110">
                       {isPlaying ? (
                         <Pause className="h-8 w-8 text-white" />
                       ) : (
                         <Play className="h-8 w-8 text-white" />
                       )}
                     </div>
+                  </div>
+                  <div className="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                    Video
                   </div>
                 </div>
               ) : (
@@ -145,40 +148,51 @@ const ProductDetail = () => {
               )}
             </div>
             
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Product Gallery</h3>
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {allImages.map((img, index) => (
-                    <CarouselItem key={index} className="basis-1/3 md:basis-1/4 lg:basis-1/6">
-                      <div 
-                        className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 ${mainImage === img ? 'border-black' : 'border-transparent'}`}
-                        onClick={() => setMainImage(img)}
-                      >
-                        {isVideo(img) ? (
-                          <div className="relative h-full w-full bg-gray-800 flex items-center justify-center">
-                            <video 
+            {allImages.length > 1 ? (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Product Gallery</h3>
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {allImages.map((img, index) => (
+                      <CarouselItem key={index} className="basis-1/3 md:basis-1/4 lg:basis-1/6">
+                        <div 
+                          className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 transition-colors ${
+                            mainImage === img ? 'border-[var(--color-imperial-blue)]' : 'border-transparent hover:border-gray-200'
+                          }`}
+                          onClick={() => setMainImage(img)}
+                        >
+                          {isVideo(img) ? (
+                            <div className="relative h-full w-full bg-gray-800 flex items-center justify-center">
+                              <video 
+                                src={img} 
+                                className="h-full w-full object-cover"
+                                muted
+                                loop
+                                playsInline
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Video className="h-6 w-6 text-white/80" />
+                              </div>
+                              <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                                Video
+                              </div>
+                            </div>
+                          ) : (
+                            <img 
                               src={img} 
+                              alt={`${product.name} view ${index}`} 
                               className="h-full w-full object-cover"
-                              muted
                             />
-                            <Play className="absolute h-4 w-4 text-white" />
-                          </div>
-                        ) : (
-                          <img 
-                            src={img} 
-                            alt={`${product.name} view ${index}`} 
-                            className="h-full w-full object-cover"
-                          />
-                        )}
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-0 bg-black text-white hover:bg-black/80" />
-                <CarouselNext className="right-0 bg-black text-white hover:bg-black/80" />
-              </Carousel>
-            </div>
+                          )}
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-0 bg-black text-white hover:bg-black/80" />
+                  <CarouselNext className="right-0 bg-black text-white hover:bg-black/80" />
+                </Carousel>
+              </div>
+            ) : null}
           </div>
           
           <div className="space-y-6">

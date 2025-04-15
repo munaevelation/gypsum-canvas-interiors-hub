@@ -1,0 +1,36 @@
+:root {
+  /* Main Colors */
+  --color-imperial-blue: #002147;
+  --color-ruby: #E0115F;
+  --color-skin-light: #FFE5D4;
+  --color-skin-warm: #FDD5B1;
+  
+  /* Accent Colors */
+  --color-gold: #FFD700;
+  --color-cream: #FFFDD0;
+  
+  /* Functional Colors */
+  --color-primary: var(--color-imperial-blue);
+  --color-secondary: var(--color-ruby);
+  --color-tertiary: var(--color-skin-light);
+  --color-background: var(--color-cream);
+  --color-text: var(--color-imperial-blue);
+  --color-text-light: var(--color-skin-warm);
+  
+  /* Interactive States */
+  --color-hover: var(--color-ruby);
+  --color-active: #001529; /* Darker imperial blue */
+  
+  /* Shadows */
+  --box-shadow: 0 2px 4px rgba(0, 33, 71, 0.1);
+  --hover-shadow: 0 4px 8px rgba(0, 33, 71, 0.2);
+  
+  --color-blue: #0047a0;
+  --color-orange: #e30d08;
+  --color-mint: #bcead5;
+  --color-button: #c2e7ff;
+  --color-white: #ffffff;
+  --color-green: #00912b;
+  --color-black: #000;
+  --br-sm-2: 14px;
+} 

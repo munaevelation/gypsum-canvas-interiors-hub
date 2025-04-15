@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,14 +19,24 @@ const queryClient = new QueryClient();
 const AnimatedRoutes = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Scroll to the top whenever location changes, for all navigation types
+    // Reset loading state when location changes
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    
+    // Scroll to the top whenever location changes
     window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    return () => clearTimeout(timer);
   }, [location.pathname, location.search]);
   
   return (
     <AnimatePresence mode="wait">
+      {isLoading && <Loader />}
       <motion.div
         key={location.pathname}
         initial={{ opacity: 0, y: 10 }}
@@ -54,10 +63,10 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Display loader for a short time
+    // Display loader for 1 second on initial load only
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 1000);
     
     return () => clearTimeout(timer);
   }, []);

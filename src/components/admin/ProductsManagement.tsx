@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -55,7 +54,11 @@ import {
   Product
 } from "@/services/dataService";
 
-const ProductsManagement = () => {
+interface ProductsManagementProps {
+  buttonClassName?: string;
+}
+
+const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
@@ -206,7 +209,7 @@ const ProductsManagement = () => {
         <Button 
           onClick={handleAddProduct} 
           disabled={isAdding}
-          className="bg-black hover:bg-black/80 text-white"
+          className={buttonClassName}
         >
           <Plus className="mr-2 h-4 w-4" /> Add Product
         </Button>

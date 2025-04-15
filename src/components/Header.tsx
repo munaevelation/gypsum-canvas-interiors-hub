@@ -31,7 +31,7 @@ const Header = () => {
   const location = useLocation();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
-  const categories = getCategoryNames();
+  const [categories, setCategories] = useState<string[]>([]);
   
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -48,6 +48,15 @@ const Header = () => {
   useEffect(() => {
     setIsSearchOpen(false);
   }, [location.pathname]);
+  
+  useEffect(() => {
+    const loadCategories = () => {
+      const categoryNames = getCategoryNames();
+      setCategories(categoryNames);
+    };
+    
+    loadCategories();
+  }, []);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,13 +90,19 @@ const Header = () => {
     
     if (location.pathname !== "/") {
       navigate(`/?section=${sectionId}`);
-      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     
     const section = document.getElementById(sectionId);
     if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
+      const headerOffset = 100; // Account for header height and some padding
+      const elementPosition = section.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
     }
   };
   
@@ -109,12 +124,18 @@ const Header = () => {
         setTimeout(() => {
           const sectionElement = document.getElementById(section);
           if (sectionElement) {
-            sectionElement.scrollIntoView({ behavior: "smooth" });
+            const headerOffset = 100;
+            const elementPosition = sectionElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth"
+            });
           }
         }, 100);
       }
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location]);
 
   const handleProductSelect = (productId: number) => {
@@ -133,14 +154,14 @@ const Header = () => {
       {to ? (
         <Link 
           to={to} 
-          className="text-gray-700 hover:text-black font-medium"
+          className="text-[var(--color-text)] hover:text-[var(--color-hover)] font-medium transition-colors"
         >
           {children}
         </Link>
       ) : (
         <button 
           onClick={onClick}
-          className="text-gray-700 hover:text-black font-medium"
+          className="text-[var(--color-text)] hover:text-[var(--color-hover)] font-medium transition-colors"
         >
           {children}
         </button>
@@ -154,10 +175,10 @@ const Header = () => {
       className="flex flex-col items-center"
       whileTap={{ scale: 0.95 }}
     >
-      <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center mb-1 shadow-md">
+      <div className="w-12 h-12 rounded-full bg-[var(--color-primary)] text-[var(--color-cream)] flex items-center justify-center mb-1 shadow-[var(--box-shadow)]">
         {icon}
       </div>
-      <span className="text-xs text-black">{label}</span>
+      <span className="text-xs text-[var(--color-text)]">{label}</span>
     </motion.button>
   );
   
@@ -175,16 +196,20 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white text-black shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
+    <header className="bg-white text-black shadow-[var(--box-shadow)] sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-2">
         {/* Desktop View */}
         <div className="flex items-center justify-between">
           {/* Logo on left */}
           <div 
             onClick={navigateToHome} 
-            className="text-xl md:text-2xl font-bold text-black cursor-pointer whitespace-nowrap flex-shrink-0 mr-4"
+            className="cursor-pointer whitespace-nowrap flex-shrink-0 mr-4"
           >
-            Gypsum<span className="text-black">Carnis</span>
+            <img 
+              src="/src/assets/company-logo.png" 
+              alt="Shekhar Sailesh Decoration" 
+              className="h-12 md:h-16 w-auto object-contain"
+            />
           </div>
           
           {/* Navigation in middle - desktop only */}
@@ -194,7 +219,7 @@ const Header = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <motion.button 
-                  className="flex items-center text-gray-700 hover:text-black font-medium"
+                  className="flex items-center text-black hover:text-[var(--color-primary)] font-medium"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}
@@ -202,16 +227,17 @@ const Header = () => {
                   Categories <ChevronDown className="ml-1 h-4 w-4" />
                 </motion.button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-white">
+              <DropdownMenuContent className="w-56 bg-white border border-gray-100 shadow-lg">
                 {categories.map((category) => (
                   <motion.div
                     key={category}
-                    whileHover={{ backgroundColor: "#f3f4f6" }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     transition={{ duration: 0.2 }}
                   >
                     <DropdownMenuItem 
                       onClick={() => navigateToCategory(category)}
-                      className="cursor-pointer text-black"
+                      className="cursor-pointer text-black hover:text-[var(--color-primary)] font-medium"
                     >
                       {category}
                     </DropdownMenuItem>
@@ -222,29 +248,37 @@ const Header = () => {
             
             <NavLink onClick={() => scrollToSection("featured")}>Featured</NavLink>
             <NavLink onClick={() => scrollToSection("new-arrivals")}>New Arrivals</NavLink>
-            <NavLink onClick={handleContactClick}>Contact</NavLink>
             <NavLink onClick={navigateToAbout}>About</NavLink>
+            <NavLink onClick={handleContactClick}>Contact</NavLink>
           </nav>
           
           {/* Search bar on right */}
-          <div className="flex-shrink-0 ml-4 w-full max-w-xs">
-            <Button 
-              variant="outline" 
-              className="relative w-full h-9 px-4 text-sm border-black text-black hover:bg-black/10"
-              onClick={() => setIsSearchOpen(true)}
-            >
-              <Search className="h-4 w-4 mr-2" />
-              <span className="text-sm hidden md:inline">Search products...</span>
-              <kbd className="hidden md:inline-flex ml-3 pointer-events-none h-5 select-none items-center gap-1 rounded border bg-black/20 px-1.5 font-mono text-[10px] font-medium opacity-100">
-                <span className="text-xs">⌘</span>K
-              </kbd>
-            </Button>
+          <div className="flex-shrink-0 ml-4">
+            <div className="search_wrap search_wrap_3">
+              <div className="search_box">
+                <div 
+                  className="btn btn_common hover:text-[var(--color-white)] p-2 cursor-pointer transition-colors" 
+                  onClick={() => setIsSearchOpen(true)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="0.8em"
+                    viewBox="0 0 512 512"
+                    className="fill-current text-white hover:text-[var(--color-white)] transition-colors"
+                  >
+                    <path
+                      d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
         {/* Mobile navigation */}
         {isMobile && (
-          <div className="flex justify-between w-full px-2 mt-4 space-x-2">
+          <div className="flex justify-between w-full px-2 space-x-2">
             <CircularNavButton 
               icon={<Home className="h-5 w-5" />} 
               label="Home" 
@@ -253,21 +287,23 @@ const Header = () => {
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <CircularNavButton 
-                  icon={<Menu className="h-5 w-5" />} 
-                  label="Categories" 
-                  onClick={() => {}} 
-                />
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center mb-1 shadow-md">
+                    <Menu className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs text-black">Categories</span>
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent 
-                className="w-56 bg-white mt-2 border border-gray-200 shadow-lg z-50"
+                className="w-56 bg-white border border-gray-100 shadow-lg z-50 mt-2"
                 align="center"
+                sideOffset={5}
               >
                 {categories.map((category) => (
                   <DropdownMenuItem 
                     key={category}
                     onClick={() => navigateToCategory(category)}
-                    className="cursor-pointer text-black hover:bg-gray-100 py-2 px-4"
+                    className="cursor-pointer text-black hover:text-[var(--color-primary)] font-medium py-2 px-4"
                   >
                     {category}
                   </DropdownMenuItem>
