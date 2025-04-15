@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, Menu, X, ChevronDown, ChevronRight, Home, Info, Star, Clock, MessageSquare } from "lucide-react";
@@ -171,22 +172,63 @@ const Header = () => {
   return (
     <header className="bg-white text-black shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-4 w-full">
+        <div className="flex items-center justify-between">
+          {/* Logo on left */}
           <div 
             onClick={navigateToHome} 
-            className="text-xl md:text-2xl font-bold text-black cursor-pointer whitespace-nowrap flex-shrink-0"
+            className="text-xl md:text-2xl font-bold text-black cursor-pointer whitespace-nowrap flex-shrink-0 mr-4"
           >
             Gypsum<span className="text-black">Carnis</span>
           </div>
           
-          <div className="flex-grow max-w-md">
+          {/* Navigation in middle - desktop only */}
+          <nav className="hidden md:flex items-center justify-center space-x-6 flex-grow">
+            <NavLink onClick={navigateToHome}>Home</NavLink>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <motion.button 
+                  className="flex items-center text-gray-700 hover:text-black font-medium"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  Categories <ChevronDown className="ml-1 h-4 w-4" />
+                </motion.button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-white">
+                {categories.map((category) => (
+                  <motion.div
+                    key={category}
+                    whileHover={{ backgroundColor: "#f3f4f6" }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <DropdownMenuItem 
+                      onClick={() => navigateToCategory(category)}
+                      className="cursor-pointer text-black"
+                    >
+                      {category}
+                    </DropdownMenuItem>
+                  </motion.div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <NavLink onClick={() => scrollToSection("featured")}>Featured</NavLink>
+            <NavLink onClick={() => scrollToSection("new-arrivals")}>New Arrivals</NavLink>
+            <NavLink onClick={navigateToAbout}>About</NavLink>
+            <NavLink onClick={() => scrollToSection("contact")}>Contact</NavLink>
+          </nav>
+          
+          {/* Search bar on right */}
+          <div className="flex-shrink-0 ml-4 w-full max-w-xs">
             <Button 
               variant="outline" 
               className="relative w-full h-9 px-4 text-sm border-black text-black hover:bg-black/10"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-4 w-4 mr-2" />
-              <span className="text-sm">Search products...</span>
+              <span className="text-sm hidden md:inline">Search products...</span>
               <kbd className="hidden md:inline-flex ml-3 pointer-events-none h-5 select-none items-center gap-1 rounded border bg-black/20 px-1.5 font-mono text-[10px] font-medium opacity-100">
                 <span className="text-xs">⌘</span>K
               </kbd>
@@ -194,44 +236,7 @@ const Header = () => {
           </div>
         </div>
         
-        <nav className="hidden md:flex items-center justify-center space-x-6 mt-4">
-          <NavLink onClick={navigateToHome}>Home</NavLink>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <motion.button 
-                className="flex items-center text-gray-700 hover:text-black font-medium"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
-                Categories <ChevronDown className="ml-1 h-4 w-4" />
-              </motion.button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-white">
-              {categories.map((category) => (
-                <motion.div
-                  key={category}
-                  whileHover={{ backgroundColor: "#f3f4f6" }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <DropdownMenuItem 
-                    onClick={() => navigateToCategory(category)}
-                    className="cursor-pointer text-black"
-                  >
-                    {category}
-                  </DropdownMenuItem>
-                </motion.div>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          <NavLink onClick={() => scrollToSection("featured")}>Featured</NavLink>
-          <NavLink onClick={() => scrollToSection("new-arrivals")}>New Arrivals</NavLink>
-          <NavLink onClick={() => scrollToSection("contact")}>Contact</NavLink>
-          <NavLink onClick={navigateToAbout}>About</NavLink>
-        </nav>
-        
+        {/* Mobile navigation */}
         {isMobile && (
           <div className="flex justify-between w-full max-w-xs mx-auto mt-4">
             <CircularNavButton 

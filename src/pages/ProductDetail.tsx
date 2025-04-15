@@ -1,8 +1,9 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowLeft, Share2 } from "lucide-react";
+import { ArrowLeft, Share2, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getProductById, getProductGalleryImages, Product } from "@/services/dataService";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +49,7 @@ const ProductDetail = () => {
   };
   
   const isVideo = (src: string) => {
-    return src.startsWith('data:video/');
+    return src && (src.startsWith('data:video/') || src.includes('video/mp4'));
   };
   
   const handleVideoClick = () => {
@@ -56,7 +57,10 @@ const ProductDetail = () => {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play();
+        videoRef.current.play().catch(error => {
+          console.error("Video play error:", error);
+          toast.error("Could not play video. Please try again.");
+        });
       }
       setIsPlaying(!isPlaying);
     }
@@ -108,16 +112,30 @@ const ProductDetail = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="space-y-6">
-            <div className="aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+            <div className="aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-50 relative">
               {isVideo(mainImage) ? (
-                <video
-                  ref={videoRef}
-                  src={mainImage}
-                  className="h-full w-full object-cover cursor-pointer"
-                  onClick={handleVideoClick}
-                  controls
-                  muted
-                />
+                <div className="relative h-full w-full">
+                  <video
+                    ref={videoRef}
+                    src={mainImage}
+                    className="h-full w-full object-cover"
+                    onClick={handleVideoClick}
+                    playsInline
+                    muted
+                  />
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors cursor-pointer"
+                    onClick={handleVideoClick}
+                  >
+                    <div className="bg-black/60 p-4 rounded-full">
+                      {isPlaying ? (
+                        <Pause className="h-8 w-8 text-white" />
+                      ) : (
+                        <Play className="h-8 w-8 text-white" />
+                      )}
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <img 
                   src={mainImage} 
@@ -138,11 +156,14 @@ const ProductDetail = () => {
                         onClick={() => setMainImage(img)}
                       >
                         {isVideo(img) ? (
-                          <video 
-                            src={img} 
-                            className="h-full w-full object-cover"
-                            muted
-                          />
+                          <div className="relative h-full w-full bg-gray-800 flex items-center justify-center">
+                            <video 
+                              src={img} 
+                              className="h-full w-full object-cover"
+                              muted
+                            />
+                            <Play className="absolute h-4 w-4 text-white" />
+                          </div>
                         ) : (
                           <img 
                             src={img} 
