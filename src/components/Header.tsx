@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, Menu, X, ChevronDown, ChevronRight, Home, Info, Star, Clock, MessageSquare } from "lucide-react";
@@ -169,9 +168,17 @@ const Header = () => {
     setIsMenuOpen(false);
   };
 
+  const handleContactClick = () => {
+    const whatsappMessage = "Hello, I'd like to get in touch!";
+    const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(whatsappMessage)}`;
+    window.open(whatsappUrl, '_blank');
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className="bg-white text-black shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
+        {/* Desktop View */}
         <div className="flex items-center justify-between">
           {/* Logo on left */}
           <div 
@@ -216,8 +223,8 @@ const Header = () => {
             
             <NavLink onClick={() => scrollToSection("featured")}>Featured</NavLink>
             <NavLink onClick={() => scrollToSection("new-arrivals")}>New Arrivals</NavLink>
+            <NavLink onClick={handleContactClick}>Contact</NavLink>
             <NavLink onClick={navigateToAbout}>About</NavLink>
-            <NavLink onClick={() => scrollToSection("contact")}>Contact</NavLink>
           </nav>
           
           {/* Search bar on right */}
@@ -238,60 +245,83 @@ const Header = () => {
         
         {/* Mobile navigation */}
         {isMobile && (
-          <div className="flex justify-between w-full max-w-xs mx-auto mt-4">
-            <CircularNavButton 
-              icon={<Home className="h-5 w-5" />} 
-              label="Home" 
-              onClick={navigateToHome} 
-            />
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <CircularNavButton 
-                  icon={<Menu className="h-5 w-5" />} 
-                  label="Categories" 
-                  onClick={() => {}} 
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                className="w-56 bg-white mt-2 border border-gray-200 shadow-lg z-50"
-                align="center"
+          <div className="flex flex-col space-y-4 mt-4">
+            {/* First row: Logo and Search */}
+            <div className="flex items-center justify-between space-x-4">
+              <div 
+                onClick={navigateToHome} 
+                className="text-xl font-bold text-black cursor-pointer whitespace-nowrap"
               >
-                {categories.map((category) => (
-                  <DropdownMenuItem 
-                    key={category}
-                    onClick={() => navigateToCategory(category)}
-                    className="cursor-pointer text-black hover:bg-gray-100 py-2 px-4"
-                  >
-                    {category}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <CircularNavButton 
-              icon={<Star className="h-5 w-5" />} 
-              label="Featured" 
-              onClick={() => scrollToSection("featured")} 
-            />
-            
-            <CircularNavButton 
-              icon={<Clock className="h-5 w-5" />} 
-              label="New" 
-              onClick={() => scrollToSection("new-arrivals")} 
-            />
-            
-            <CircularNavButton 
-              icon={<MessageSquare className="h-5 w-5" />} 
-              label="Contact" 
-              onClick={() => scrollToSection("contact")} 
-            />
-            
-            <CircularNavButton 
-              icon={<Info className="h-5 w-5" />} 
-              label="About" 
-              onClick={() => navigateToAbout()} 
-            />
+                Gypsum<span className="text-black">Carnis</span>
+              </div>
+              <div className="flex-grow mx-4">
+                <Button 
+                  variant="outline" 
+                  className="relative w-full h-9 px-4 text-sm border-black text-black hover:bg-black/10"
+                  onClick={() => setIsSearchOpen(true)}
+                >
+                  <Search className="h-4 w-4 mr-2" />
+                  <span className="text-sm">Search...</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Second row: Navigation buttons */}
+            <div className="flex justify-between w-full px-2">
+              <CircularNavButton 
+                icon={<Home className="h-5 w-5" />} 
+                label="Home" 
+                onClick={navigateToHome} 
+              />
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <CircularNavButton 
+                    icon={<Menu className="h-5 w-5" />} 
+                    label="Categories" 
+                    onClick={() => {}} 
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  className="w-56 bg-white mt-2 border border-gray-200 shadow-lg z-50"
+                  align="center"
+                >
+                  {categories.map((category) => (
+                    <DropdownMenuItem 
+                      key={category}
+                      onClick={() => navigateToCategory(category)}
+                      className="cursor-pointer text-black hover:bg-gray-100 py-2 px-4"
+                    >
+                      {category}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <CircularNavButton 
+                icon={<Star className="h-5 w-5" />} 
+                label="Featured" 
+                onClick={() => scrollToSection("featured")} 
+              />
+              
+              <CircularNavButton 
+                icon={<Clock className="h-5 w-5" />} 
+                label="New" 
+                onClick={() => scrollToSection("new-arrivals")} 
+              />
+              
+              <CircularNavButton 
+                icon={<MessageSquare className="h-5 w-5" />} 
+                label="Contact" 
+                onClick={handleContactClick} 
+              />
+              
+              <CircularNavButton 
+                icon={<Info className="h-5 w-5" />} 
+                label="About" 
+                onClick={() => navigateToAbout()} 
+              />
+            </div>
           </div>
         )}
       </div>
