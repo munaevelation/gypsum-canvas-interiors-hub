@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -18,9 +17,9 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState<string>("");
   const navigate = useNavigate();
-  
-  // Get additional images from data service
   const [additionalImages, setAdditionalImages] = useState<string[]>([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   
   useEffect(() => {
     if (id) {
@@ -29,7 +28,6 @@ const ProductDetail = () => {
       if (productData) {
         setMainImage(productData.image);
         
-        // Get gallery images
         const galleryImages = getProductGalleryImages(parseInt(id, 10)) || [];
         setAdditionalImages(galleryImages);
       }
@@ -47,6 +45,21 @@ const ProductDetail = () => {
     const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(whatsappMessage)}`;
     window.open(whatsappUrl, '_blank');
     toast.success("Sharing link to WhatsApp");
+  };
+  
+  const isVideo = (src: string) => {
+    return src.startsWith('data:video/');
+  };
+  
+  const handleVideoClick = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
   };
   
   if (loading) {
@@ -77,7 +90,6 @@ const ProductDetail = () => {
     );
   }
   
-  // Combine product main image with additional gallery images
   const allImages = [product.image, ...additionalImages];
   
   return (
@@ -95,34 +107,49 @@ const ProductDetail = () => {
         </Button>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Images Section */}
           <div className="space-y-6">
-            {/* Main Image */}
             <div className="aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
-              <img 
-                src={mainImage} 
-                alt={product.name} 
-                className="h-full w-full object-cover"
-              />
+              {isVideo(mainImage) ? (
+                <video
+                  ref={videoRef}
+                  src={mainImage}
+                  className="h-full w-full object-cover cursor-pointer"
+                  onClick={handleVideoClick}
+                  controls
+                  muted
+                />
+              ) : (
+                <img 
+                  src={mainImage} 
+                  alt={product.name} 
+                  className="h-full w-full object-cover"
+                />
+              )}
             </div>
             
-            {/* Additional Images */}
             <div>
               <h3 className="text-lg font-semibold mb-3">Product Gallery</h3>
               <Carousel className="w-full">
                 <CarouselContent>
-                  {/* Show all available images */}
                   {allImages.map((img, index) => (
                     <CarouselItem key={index} className="basis-1/3 md:basis-1/4 lg:basis-1/6">
                       <div 
                         className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 ${mainImage === img ? 'border-black' : 'border-transparent'}`}
                         onClick={() => setMainImage(img)}
                       >
-                        <img 
-                          src={img} 
-                          alt={`${product.name} view ${index}`} 
-                          className="h-full w-full object-cover"
-                        />
+                        {isVideo(img) ? (
+                          <video 
+                            src={img} 
+                            className="h-full w-full object-cover"
+                            muted
+                          />
+                        ) : (
+                          <img 
+                            src={img} 
+                            alt={`${product.name} view ${index}`} 
+                            className="h-full w-full object-cover"
+                          />
+                        )}
                       </div>
                     </CarouselItem>
                   ))}
@@ -133,7 +160,6 @@ const ProductDetail = () => {
             </div>
           </div>
           
-          {/* Product Details Section */}
           <div className="space-y-6">
             <div>
               <div className="flex space-x-2 mb-2">
