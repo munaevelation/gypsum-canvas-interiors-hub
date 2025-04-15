@@ -114,7 +114,6 @@ const Header = () => {
         }, 100);
       }
     }
-    // Always scroll to top on navigation
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location]);
 
@@ -245,83 +244,60 @@ const Header = () => {
         
         {/* Mobile navigation */}
         {isMobile && (
-          <div className="flex flex-col space-y-4 mt-4">
-            {/* First row: Logo and Search */}
-            <div className="flex items-center justify-between space-x-4">
-              <div 
-                onClick={navigateToHome} 
-                className="text-xl font-bold text-black cursor-pointer whitespace-nowrap"
+          <div className="flex justify-between w-full px-2 mt-4 space-x-2">
+            <CircularNavButton 
+              icon={<Home className="h-5 w-5" />} 
+              label="Home" 
+              onClick={navigateToHome} 
+            />
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <CircularNavButton 
+                  icon={<Menu className="h-5 w-5" />} 
+                  label="Categories" 
+                  onClick={() => {}} 
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                className="w-56 bg-white mt-2 border border-gray-200 shadow-lg z-50"
+                align="center"
               >
-                Gypsum<span className="text-black">Carnis</span>
-              </div>
-              <div className="flex-grow mx-4">
-                <Button 
-                  variant="outline" 
-                  className="relative w-full h-9 px-4 text-sm border-black text-black hover:bg-black/10"
-                  onClick={() => setIsSearchOpen(true)}
-                >
-                  <Search className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Search...</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Second row: Navigation buttons */}
-            <div className="flex justify-between w-full px-2">
-              <CircularNavButton 
-                icon={<Home className="h-5 w-5" />} 
-                label="Home" 
-                onClick={navigateToHome} 
-              />
+                {categories.map((category) => (
+                  <DropdownMenuItem 
+                    key={category}
+                    onClick={() => navigateToCategory(category)}
+                    className="cursor-pointer text-black hover:bg-gray-100 py-2 px-4"
+                  >
+                    {category}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <CircularNavButton 
+              icon={<Star className="h-5 w-5" />} 
+              label="Featured" 
+              onClick={() => scrollToSection("featured")} 
+            />
+            
+            <CircularNavButton 
+              icon={<Clock className="h-5 w-5" />} 
+              label="New" 
+              onClick={() => scrollToSection("new-arrivals")} 
+            />
               
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <CircularNavButton 
-                    icon={<Menu className="h-5 w-5" />} 
-                    label="Categories" 
-                    onClick={() => {}} 
-                  />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  className="w-56 bg-white mt-2 border border-gray-200 shadow-lg z-50"
-                  align="center"
-                >
-                  {categories.map((category) => (
-                    <DropdownMenuItem 
-                      key={category}
-                      onClick={() => navigateToCategory(category)}
-                      className="cursor-pointer text-black hover:bg-gray-100 py-2 px-4"
-                    >
-                      {category}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              <CircularNavButton 
-                icon={<Star className="h-5 w-5" />} 
-                label="Featured" 
-                onClick={() => scrollToSection("featured")} 
-              />
-              
-              <CircularNavButton 
-                icon={<Clock className="h-5 w-5" />} 
-                label="New" 
-                onClick={() => scrollToSection("new-arrivals")} 
-              />
-              
-              <CircularNavButton 
-                icon={<MessageSquare className="h-5 w-5" />} 
-                label="Contact" 
-                onClick={handleContactClick} 
-              />
-              
-              <CircularNavButton 
-                icon={<Info className="h-5 w-5" />} 
-                label="About" 
-                onClick={() => navigateToAbout()} 
-              />
-            </div>
+            <CircularNavButton 
+              icon={<Info className="h-5 w-5" />} 
+              label="About" 
+              onClick={() => navigateToAbout()} 
+            />
+            
+            <CircularNavButton 
+              icon={<MessageSquare className="h-5 w-5" />} 
+              label="Contact" 
+              onClick={handleContactClick} 
+            />
           </div>
         )}
       </div>
