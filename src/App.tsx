@@ -15,20 +15,17 @@ import Loader from "./components/Loader";
 
 const queryClient = new QueryClient();
 
-// Move all routing-related components inside the BrowserRouter
 const AnimatedRoutes = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Reset loading state when location changes
     setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
     
-    // Scroll to the top whenever location changes
     window.scrollTo({ top: 0, behavior: "smooth" });
     
     return () => clearTimeout(timer);
@@ -36,25 +33,34 @@ const AnimatedRoutes = () => {
   
   return (
     <AnimatePresence mode="wait">
-      {isLoading && <Loader />}
-      <motion.div
-        key={location.pathname}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.3 }}
-        className="w-full min-h-screen"
-      >
-        <Routes location={location}>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </motion.div>
+      {isLoading ? (
+        <motion.div
+          key="loader"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <Loader />
+        </motion.div>
+      ) : (
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="w-full min-h-screen"
+        >
+          <Routes location={location}>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 };
@@ -63,7 +69,6 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Display loader for 1 second on initial load only
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1000);
@@ -76,9 +81,6 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner position="top-right" closeButton richColors />
-        <AnimatePresence>
-          {loading && <Loader />}
-        </AnimatePresence>
         <BrowserRouter>
           <AnimatedRoutes />
         </BrowserRouter>

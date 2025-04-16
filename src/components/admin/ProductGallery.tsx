@@ -26,7 +26,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { updateProductGallery, getProductGalleryImages } from "@/services/dataService";
 
 interface ProductGalleryProps {
-  productId: number;
+  productId: string;
 }
 
 const ProductGallery = ({ productId }: ProductGalleryProps) => {

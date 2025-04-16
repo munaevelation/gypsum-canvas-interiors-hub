@@ -101,16 +101,29 @@ const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
   };
   
   const handleSaveProduct = async () => {
-    if (!newProduct.name || !newProduct.category) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-    
-    const result = await createProduct(newProduct);
-    if (result) {
-      await loadProducts();
-      setIsAdding(false);
-      toast.success("Product added successfully!");
+    try {
+      if (!newProduct.name || !newProduct.category) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
+      
+      const result = await createProduct(newProduct);
+      if (result) {
+        await loadProducts();
+        setIsAdding(false);
+        setNewProduct({
+          name: "",
+          description: "",
+          dimensions: "",
+          category: "",
+          useCase: "",
+          image: "",
+          isFeatured: false,
+          isNewArrival: false
+        });
+      }
+    } catch (error) {
+      console.error('Error saving product:', error);
     }
   };
   
@@ -132,18 +145,31 @@ const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
   };
   
   const handleUpdateProduct = async () => {
-    if (!newProduct.name || !newProduct.category) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-    
-    if (editingProduct !== null) {
-      const result = await updateProduct(editingProduct, newProduct);
-      if (result) {
-        await loadProducts();
-        setEditingProduct(null);
-        toast.success("Product updated successfully!");
+    try {
+      if (!newProduct.name || !newProduct.category) {
+        toast.error("Please fill in all required fields");
+        return;
       }
+      
+      if (editingProduct !== null) {
+        const result = await updateProduct(editingProduct, newProduct);
+        if (result) {
+          await loadProducts();
+          setEditingProduct(null);
+          setNewProduct({
+            name: "",
+            description: "",
+            dimensions: "",
+            category: "",
+            useCase: "",
+            image: "",
+            isFeatured: false,
+            isNewArrival: false
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
     }
   };
   

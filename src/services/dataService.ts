@@ -308,13 +308,13 @@ export const moveCarouselImageDown = (id: number): void => {
 };
 
 // Product Gallery
-export const getProductGalleryImages = (productId: number): string[] | undefined => {
+export const getProductGalleryImages = (productId: string): string[] | undefined => {
   const gallery = localStorageMock.getItem('productGalleries') || productGalleries;
-  return gallery[String(productId)];
+  return gallery[productId];
 };
 
-export const updateProductGallery = (productId: number, images: string[]): void => {
+export const updateProductGallery = (productId: string, images: string[]): void => {
   let gallery = localStorageMock.getItem('productGalleries') || productGalleries;
-  gallery = { ...gallery, [String(productId)]: images };
+  gallery = { ...gallery, [productId]: images };
   localStorageMock.setItem('productGalleries', gallery);
 };

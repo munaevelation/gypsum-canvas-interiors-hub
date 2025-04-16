@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,7 +13,7 @@ import { Ruler, Tag, ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Letter Animation Component
-const AnimatedText = ({ text, className = "" }: { text: string; className?: string }) => {
+const AnimatedText = ({ text, className = "", onAnimationComplete }: { text: string; className?: string; onAnimationComplete: () => void }) => {
   // Animation variants for the container
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -22,7 +21,14 @@ const AnimatedText = ({ text, className = "" }: { text: string; className?: stri
       opacity: 1,
       transition: {
         staggerChildren: 0.05,
-        delayChildren: 0.3
+        delayChildren: 0.3,
+        when: "beforeChildren"
+      }
+    },
+    hold: {
+      opacity: 1,
+      transition: {
+        duration: 1
       }
     }
   };
@@ -43,6 +49,11 @@ const AnimatedText = ({ text, className = "" }: { text: string; className?: stri
         damping: 10,
         stiffness: 100
       }
+    },
+    hold: {
+      opacity: 1,
+      y: 0,
+      rotateY: 0
     }
   };
 
@@ -52,6 +63,7 @@ const AnimatedText = ({ text, className = "" }: { text: string; className?: stri
       variants={containerVariants}
       initial="hidden"
       animate="visible"
+      onAnimationComplete={onAnimationComplete}
     >
       {text.split("").map((char, index) => (
         <motion.span
@@ -75,6 +87,7 @@ const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Check for direct product navigation
   useEffect(() => {
@@ -134,23 +147,41 @@ const Index = () => {
       <main className="flex-grow">
         {!activeCategory && (
           <>
-            <Hero />
-            <div className="py-16 px-4 bg-white">
-              <div className="container mx-auto">
-                <AnimatedText text="Premium Interior Solutions" className="text-black" />
-                <motion.p 
-                  className="text-center text-lg text-gray-600 max-w-2xl mx-auto"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.2, duration: 0.8 }}
-                >
-                  Discover our exquisite collection of gypsum designs that transform ordinary spaces into extraordinary experiences.
-                </motion.p>
+            {isLoading ? (
+              <div className="h-screen flex items-center justify-center">
+                <AnimatedText 
+                  text="Premium Interior Solutions" 
+                  className="text-black"
+                  onAnimationComplete={() => {
+                    setTimeout(() => {
+                      setIsLoading(false);
+                    }, 1000);
+                  }}
+                />
               </div>
-            </div>
-            <Categories />
-            <FeaturedProducts />
-            <NewArrivals />
+            ) : (
+              <>
+                <Hero />
+                <div className="py-16 px-4 bg-white">
+                  <div className="container mx-auto">
+                    <h1 className="text-center text-5xl font-bold mb-8 text-black">
+                      Premium Interior Solutions
+                    </h1>
+                    <motion.p 
+                      className="text-center text-lg text-gray-600 max-w-2xl mx-auto"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5, duration: 0.8 }}
+                    >
+                      Discover our exquisite collection of gypsum designs that transform ordinary spaces into extraordinary experiences.
+                    </motion.p>
+                  </div>
+                </div>
+                <Categories />
+                <FeaturedProducts />
+                <NewArrivals />
+              </>
+            )}
           </>
         )}
         
