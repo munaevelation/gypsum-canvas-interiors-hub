@@ -3,102 +3,198 @@ import { supabase } from "@/integrations/supabase/client";
 import { Product } from "../dataService";
 
 export const fetchProducts = async () => {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*');
-  
-  if (error) {
-    console.error('Error fetching products:', error);
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*');
+    
+    if (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Exception fetching products:', error);
     return [];
   }
-  
-  return data;
 };
 
 export const fetchProductById = async (id: string) => {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('id', id)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .single();
+      
+    if (error) {
+      console.error('Error fetching product:', error);
+      throw error;
+    }
     
-  if (error) {
-    console.error('Error fetching product:', error);
+    return data;
+  } catch (error) {
+    console.error('Exception fetching product:', error);
     return null;
   }
-  
-  return data;
 };
 
 export const fetchFeaturedProducts = async () => {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('is_featured', true);
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('is_featured', true);
+      
+    if (error) {
+      console.error('Error fetching featured products:', error);
+      throw error;
+    }
     
-  if (error) {
-    console.error('Error fetching featured products:', error);
+    return data || [];
+  } catch (error) {
+    console.error('Exception fetching featured products:', error);
     return [];
   }
-  
-  return data;
 };
 
 export const fetchNewArrivals = async () => {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('is_new_arrival', true);
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('is_new_arrival', true);
+      
+    if (error) {
+      console.error('Error fetching new arrivals:', error);
+      throw error;
+    }
     
-  if (error) {
-    console.error('Error fetching new arrivals:', error);
+    return data || [];
+  } catch (error) {
+    console.error('Exception fetching new arrivals:', error);
     return [];
   }
-  
-  return data;
 };
 
 export const createProduct = async (product: Omit<Product, "id">) => {
-  const { data, error } = await supabase
-    .from('products')
-    .insert([product])
-    .select()
-    .single();
+  try {
+    // Convert keys to snake_case for Supabase
+    const supabaseProduct = {
+      name: product.name,
+      description: product.description,
+      dimensions: product.dimensions,
+      category: product.category,
+      use_case: product.useCase,
+      image: product.image,
+      is_featured: product.isFeatured,
+      is_new_arrival: product.isNewArrival
+    };
     
-  if (error) {
-    console.error('Error creating product:', error);
+    console.log('Creating product with data:', supabaseProduct);
+    
+    const { data, error } = await supabase
+      .from('products')
+      .insert([supabaseProduct])
+      .select()
+      .single();
+      
+    if (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
+    
+    console.log('Product created successfully:', data);
+    
+    // Convert back to camelCase for frontend
+    return data ? {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      dimensions: data.dimensions,
+      category: data.category,
+      useCase: data.use_case,
+      image: data.image,
+      isFeatured: data.is_featured,
+      isNewArrival: data.is_new_arrival,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    } : null;
+  } catch (error) {
+    console.error('Exception creating product:', error);
     return null;
   }
-  
-  return data;
 };
 
 export const updateProduct = async (id: string, updates: Partial<Product>) => {
-  const { data, error } = await supabase
-    .from('products')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
+  try {
+    // Convert keys to snake_case for Supabase
+    const supabaseUpdates: any = {};
     
-  if (error) {
-    console.error('Error updating product:', error);
+    if (updates.name !== undefined) supabaseUpdates.name = updates.name;
+    if (updates.description !== undefined) supabaseUpdates.description = updates.description;
+    if (updates.dimensions !== undefined) supabaseUpdates.dimensions = updates.dimensions;
+    if (updates.category !== undefined) supabaseUpdates.category = updates.category;
+    if (updates.useCase !== undefined) supabaseUpdates.use_case = updates.useCase;
+    if (updates.image !== undefined) supabaseUpdates.image = updates.image;
+    if (updates.isFeatured !== undefined) supabaseUpdates.is_featured = updates.isFeatured;
+    if (updates.isNewArrival !== undefined) supabaseUpdates.is_new_arrival = updates.isNewArrival;
+    
+    console.log('Updating product with ID:', id, 'and data:', supabaseUpdates);
+    
+    const { data, error } = await supabase
+      .from('products')
+      .update(supabaseUpdates)
+      .eq('id', id)
+      .select()
+      .single();
+      
+    if (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+    
+    console.log('Product updated successfully:', data);
+    
+    // Convert back to camelCase for frontend
+    return data ? {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      dimensions: data.dimensions,
+      category: data.category,
+      useCase: data.use_case,
+      image: data.image,
+      isFeatured: data.is_featured,
+      isNewArrival: data.is_new_arrival,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    } : null;
+  } catch (error) {
+    console.error('Exception updating product:', error);
     return null;
   }
-  
-  return data;
 };
 
 export const deleteProduct = async (id: string) => {
-  const { error } = await supabase
-    .from('products')
-    .delete()
-    .eq('id', id);
+  try {
+    console.log('Deleting product with ID:', id);
     
-  if (error) {
-    console.error('Error deleting product:', error);
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+      
+    if (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
+    
+    console.log('Product deleted successfully');
+    return true;
+  } catch (error) {
+    console.error('Exception deleting product:', error);
     return false;
   }
-  
-  return true;
 };
