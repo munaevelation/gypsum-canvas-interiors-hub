@@ -9,7 +9,111 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      carousel_images: {
+        Row: {
+          button_link: string | null
+          button_text: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          image: string
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          button_link?: string | null
+          button_text?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          button_link?: string | null
+          button_text?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          dimensions: string | null
+          id: string
+          image: string | null
+          is_featured: boolean | null
+          is_new_arrival: boolean | null
+          name: string
+          updated_at: string
+          use_case: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          dimensions?: string | null
+          id?: string
+          image?: string | null
+          is_featured?: boolean | null
+          is_new_arrival?: boolean | null
+          name: string
+          updated_at?: string
+          use_case?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          dimensions?: string | null
+          id?: string
+          image?: string | null
+          is_featured?: boolean | null
+          is_new_arrival?: boolean | null
+          name?: string
+          updated_at?: string
+          use_case?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
