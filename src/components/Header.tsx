@@ -138,7 +138,7 @@ const Header = () => {
     }
   }, [location]);
 
-  const handleProductSelect = (productId: number) => {
+  const handleProductSelect = (productId: string) => {
     navigate(`/product/${productId}`);
     setIsSearchOpen(false);
     setSearchQuery("");

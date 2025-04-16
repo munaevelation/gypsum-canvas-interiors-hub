@@ -194,6 +194,26 @@ const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
     setShowGallery(true);
   };
 
+  const toggleFeatured = async (productId: string) => {
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      const updatedProduct = { 
+        ...product, 
+        isFeatured: !product.isFeatured 
+      };
+      try {
+        await updateProduct(productId, updatedProduct);
+        setProducts(
+          products.map((p) => (p.id === productId ? updatedProduct : p))
+        );
+        toast.success(`Product ${product.isFeatured ? "removed from" : "added to"} featured products`);
+      } catch (error) {
+        console.error("Error toggling featured status:", error);
+        toast.error("Failed to update featured status");
+      }
+    }
+  };
+
   useEffect(() => {
     loadProducts();
     loadCategories();
