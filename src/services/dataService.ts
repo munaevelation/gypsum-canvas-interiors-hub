@@ -1,340 +1,312 @@
-// Simple in-memory data service
-// In a real application, this would connect to a backend API
-
-// Types for our data
 export interface Product {
-  id: number;
+  id: string;  // Changed from number to string for UUID
   name: string;
-  description: string;
-  dimensions: string;
+  description?: string;
+  dimensions?: string;
   category: string;
-  useCase: string;
-  image: string;
+  useCase?: string;
+  image?: string;
   isFeatured?: boolean;
   isNewArrival?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Category {
-  id: number;
+  id: string;  // Changed from number to string for UUID
   name: string;
-  description: string;
-  image: string;
+  description?: string;
+  image?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CarouselImage {
-  id: number;
+  id: string;  // Changed from number to string for UUID
   image: string;
-  title: string;
-  subtitle: string;
-  buttonText: string;
-  buttonLink: string;
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  displayOrder?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-// Initial sample data
-const initialProducts: Product[] = [
+// Mock data (replace with actual data fetching later)
+const products: Product[] = [
   {
-    id: 1,
-    name: "Royal Crown Cornice",
-    description: "Elegant cornice design with intricate detailing.",
-    dimensions: "12cm height x 15cm projection",
-    category: "Ceiling Cornices",
-    useCase: "Living Rooms, Dining Rooms",
-    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
-    isFeatured: true,
-    isNewArrival: false
-  },
-  {
-    id: 2,
-    name: "Geometric 3D Wall Panel",
-    description: "Modern geometric pattern that creates a stunning visual effect.",
-    dimensions: "50cm x 50cm panels",
-    category: "3D Panels",
-    useCase: "Feature Walls, Office Spaces",
-    image: "https://images.unsplash.com/photo-1601084881623-cdf9a8ea242c",
-    isFeatured: true,
-    isNewArrival: false
-  },
-  {
-    id: 3,
+    id: "1",
     name: "Classic Ceiling Medallion",
-    description: "Traditional ceiling medallion with floral motif.",
-    dimensions: "60cm diameter",
     category: "Ceiling Medallions",
-    useCase: "Dining Rooms, Entryways",
-    image: "https://images.unsplash.com/photo-1603203040289-611d79cb1fe7",
-    isFeatured: false,
-    isNewArrival: true
+    image: "https://placehold.co/600x400/png",
+    isFeatured: true,
+    isNewArrival: true,
+    description: "An elegant addition to any room.",
+    dimensions: "50cm diameter",
+    useCase: "Living Rooms, Dining Rooms"
+  },
+  {
+    id: "2",
+    name: "Modern Wall Panel",
+    category: "Wall Panels",
+    image: "https://placehold.co/600x400/png",
+    description: "Sleek and contemporary design.",
+    dimensions: "120cm x 60cm",
+    useCase: "Offices, Studios"
+  },
+  {
+    id: "3",
+    name: "Gypsum Cornice",
+    category: "Ceiling Cornices",
+    image: "https://placehold.co/600x400/png",
+    description: "Decorative molding for ceilings.",
+    dimensions: "240cm length",
+    useCase: "Bedrooms, Hallways"
+  },
+  {
+    id: "4",
+    name: "Ornate Wall Sconce",
+    category: "Wall Decor",
+    image: "https://placehold.co/600x400/png",
+    description: "Adds a touch of sophistication.",
+    dimensions: "30cm height",
+    useCase: "Entryways, Lounges"
+  },
+  {
+    id: "5",
+    name: "Contemporary Ceiling Light",
+    category: "Ceiling Lights",
+    image: "https://placehold.co/600x400/png",
+    description: "Modern lighting solution.",
+    dimensions: "40cm diameter",
+    useCase: "Kitchens, Bathrooms"
+  },
+  {
+    id: "6",
+    name: "Textured Wall Art",
+    category: "Wall Decor",
+    image: "https://placehold.co/600x400/png",
+    description: "Unique and tactile wall art.",
+    dimensions: "90cm x 90cm",
+    useCase: "Living Rooms, Galleries"
+  },
+  {
+    id: "7",
+    name: "Abstract Gypsum Sculpture",
+    category: "Sculptures",
+    image: "https://placehold.co/600x400/png",
+    description: "A statement piece for any space.",
+    dimensions: "60cm height",
+    useCase: "Gardens, Patios"
+  },
+  {
+    id: "8",
+    name: "Minimalist Wall Mirror",
+    category: "Wall Decor",
+    image: "https://placehold.co/600x400/png",
+    description: "Clean and simple design.",
+    dimensions: "70cm diameter",
+    useCase: "Bedrooms, Dressing Rooms"
+  },
+  {
+    id: "9",
+    name: "Geometric Ceiling Tiles",
+    category: "Ceiling Tiles",
+    image: "https://placehold.co/600x400/png",
+    description: "Adds a modern geometric pattern.",
+    dimensions: "30cm x 30cm",
+    useCase: "Offices, Retail Spaces"
+  },
+  {
+    id: "10",
+    name: "Rustic Wall Clock",
+    category: "Wall Decor",
+    image: "https://placehold.co/600x400/png",
+    description: "A charming rustic touch.",
+    dimensions: "45cm diameter",
+    useCase: "Kitchens, Studies"
   }
 ];
 
-const initialCategories: Category[] = [
+const categories: Category[] = [
+  { id: "1", name: "Ceiling Medallions", image: "https://placehold.co/600x400/png", description: "Decorative elements for ceilings." },
+  { id: "2", name: "Wall Panels", image: "https://placehold.co/600x400/png", description: "Stylish panels for walls." },
+  { id: "3", name: "Ceiling Cornices", image: "https://placehold.co/600x400/png", description: "Elegant moldings for ceilings." },
+  { id: "4", name: "Wall Decor", image: "https://placehold.co/600x400/png", description: "Various decorations for walls." },
+  { id: "5", name: "Ceiling Lights", image: "https://placehold.co/600x400/png", description: "Lighting fixtures for ceilings." },
+  { id: "6", name: "Sculptures", image: "https://placehold.co/600x400/png", description: "Three-dimensional art pieces." },
+  { id: "7", name: "Ceiling Tiles", image: "https://placehold.co/600x400/png", description: "Tiles for ceiling decoration." }
+];
+
+const carouselImages: CarouselImage[] = [
   {
-    id: 1,
-    name: "Ceiling Cornices",
-    description: "Elegant ceiling trim designs to enhance your room's perimeter.",
-    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6"
+    id: "1",
+    image: "https://placehold.co/1200x500/png",
+    title: "Exclusive Collection",
+    subtitle: "Discover our new arrivals",
+    buttonText: "Shop Now",
+    buttonLink: "/?category=Ceiling%20Medallions",
+    displayOrder: 1
   },
   {
-    id: 2,
-    name: "Wall Panels",
-    description: "Add texture and dimension to your walls with decorative panels.",
-    image: "https://images.unsplash.com/photo-1600210492493-0946911123ea"
+    id: "2",
+    image: "https://placehold.co/1200x500/png",
+    title: "Summer Sale",
+    subtitle: "Up to 50% off on selected items",
+    buttonText: "View Sale",
+    buttonLink: "/?category=Wall%20Panels",
+    displayOrder: 2
   },
   {
-    id: 3,
-    name: "Light Troughs",
-    description: "Create ambient lighting with our recessed ceiling designs.",
-    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d"
-  },
-  {
-    id: 4,
-    name: "Columns & Pillars",
-    description: "Classic and modern column designs for architectural accents.",
-    image: "https://images.unsplash.com/photo-1505796149773-5d216eb9ac6d"
+    id: "3",
+    image: "https://placehold.co/1200x500/png",
+    title: "Featured Designs",
+    subtitle: "Explore our top-rated designs",
+    buttonText: "Explore",
+    buttonLink: "/?category=Ceiling%20Cornices",
+    displayOrder: 3
   }
 ];
 
-// Create localStorage keys
-const PRODUCTS_STORAGE_KEY = 'gypsum-cms-products';
-const CATEGORIES_STORAGE_KEY = 'gypsum-cms-categories';
-
-// Helper function to initialize data
-const initializeData = <T>(key: string, initialData: T[]): T[] => {
-  try {
-    const storedData = localStorage.getItem(key);
-    if (!storedData) {
-      localStorage.setItem(key, JSON.stringify(initialData));
-      return initialData;
-    }
-    return JSON.parse(storedData);
-  } catch (error) {
-    console.error(`Error initializing ${key} data:`, error);
-    return initialData;
-  }
+const productGalleries: { [productId: string]: string[] } = {
+  "1": [
+    "https://placehold.co/600x400/png",
+    "https://placehold.co/600x400/png",
+    "https://placehold.co/600x400/png"
+  ],
+  "2": [
+    "https://placehold.co/600x400/png",
+    "https://placehold.co/600x400/png"
+  ],
+  "3": [
+    "https://placehold.co/600x400/png"
+  ]
 };
 
-// Products CRUD operations
+// Local Storage Mock
+const localStorageMock = {
+  getItem: (key: string) => {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : null;
+  },
+  setItem: (key: string, value: any) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  },
+  removeItem: (key: string) => {
+    localStorage.removeItem(key);
+  },
+};
+
+// Products
 export const getProducts = (): Product[] => {
-  return initializeData<Product>(PRODUCTS_STORAGE_KEY, initialProducts);
+  return localStorageMock.getItem('products') || products;
 };
 
-export const getProductById = (id: number): Product | null => {
+export const getProductById = (id: number): Product | undefined => {
   const products = getProducts();
-  return products.find(product => product.id === id) || null;
+  return products.find(product => parseInt(product.id, 10) === id);
 };
 
-export const getFeaturedProducts = (): Product[] => {
+export const addProduct = (product: Omit<Product, "id">): void => {
   const products = getProducts();
-  return products.filter(product => product.isFeatured);
+  const newProduct = { ...product, id: String(products.length + 1) };
+  localStorageMock.setItem('products', [...products, newProduct]);
 };
 
-export const getNewArrivals = (): Product[] => {
+export const updateProduct = (product: Product): void => {
   const products = getProducts();
-  return products.filter(product => product.isNewArrival);
-};
-
-export const addProduct = (product: Omit<Product, "id">): Product => {
-  const products = getProducts();
-  const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-  
-  const newProduct: Product = {
-    ...product,
-    id: newId
-  };
-  
-  const updatedProducts = [...products, newProduct];
-  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedProducts));
-  
-  return newProduct;
-};
-
-export const updateProduct = (product: Product): Product => {
-  // Ensure a product can't be both featured and new arrival
-  if (product.isFeatured && product.isNewArrival) {
-    product.isNewArrival = false;
-  }
-  
-  const products = getProducts();
-  const updatedProducts = products.map(p => 
-    p.id === product.id ? product : p
-  );
-  
-  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedProducts));
-  return product;
+  const updatedProducts = products.map(p => (p.id === product.id ? product : p));
+  localStorageMock.setItem('products', updatedProducts);
 };
 
 export const deleteProduct = (id: number): void => {
   const products = getProducts();
-  const updatedProducts = products.filter(p => p.id !== id);
-  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedProducts));
+  const updatedProducts = products.filter(product => parseInt(product.id, 10) !== id);
+  localStorageMock.setItem('products', updatedProducts);
 };
 
-// Categories CRUD operations
+// Categories
 export const getCategories = (): Category[] => {
-  return initializeData<Category>(CATEGORIES_STORAGE_KEY, initialCategories);
+  return localStorageMock.getItem('categories') || categories;
 };
 
-export const addCategory = (category: Omit<Category, "id">): Category => {
-  const categories = getCategories();
-  const newId = categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1;
-  
-  const newCategory: Category = {
-    ...category,
-    id: newId
-  };
-  
-  const updatedCategories = [...categories, newCategory];
-  localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(updatedCategories));
-  
-  return newCategory;
-};
-
-export const updateCategory = (category: Category): Category => {
-  const categories = getCategories();
-  const updatedCategories = categories.map(c => 
-    c.id === category.id ? category : c
-  );
-  
-  localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(updatedCategories));
-  return category;
-};
-
-export const deleteCategory = (id: number): void => {
-  const categories = getCategories();
-  const updatedCategories = categories.filter(c => c.id !== id);
-  localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(updatedCategories));
-};
-
-// Get category names for dropdown
 export const getCategoryNames = (): string[] => {
   const categories = getCategories();
   return categories.map(category => category.name);
 };
 
-// Get carousel images from localStorage
+export const addCategory = (category: Omit<Category, "id">): void => {
+  const categories = getCategories();
+  const newCategory = { ...category, id: String(categories.length + 1) };
+  localStorageMock.setItem('categories', [...categories, newCategory]);
+};
+
+export const updateCategory = (category: Category): void => {
+  const categories = getCategories();
+  const updatedCategories = categories.map(c => (c.id === category.id ? category : c));
+  localStorageMock.setItem('categories', updatedCategories);
+};
+
+export const deleteCategory = (id: number): void => {
+  const categories = getCategories();
+  const updatedCategories = categories.filter(category => parseInt(category.id, 10) !== id);
+  localStorageMock.setItem('categories', updatedCategories);
+};
+
+// Carousel Images
 export const getCarouselImages = (): CarouselImage[] => {
-  const images = localStorage.getItem("carouselImages");
-  return images ? JSON.parse(images) : [];
+  return localStorageMock.getItem('carouselImages') || carouselImages;
 };
 
-// Add a new carousel image
-export const addCarouselImage = (image: Omit<CarouselImage, "id">) => {
-  const images = getCarouselImages();
-  const newImage = {
-    ...image,
-    id: Date.now()
-  };
-  
-  localStorage.setItem("carouselImages", JSON.stringify([...images, newImage]));
-  return newImage;
+export const addCarouselImage = (image: Omit<CarouselImage, "id">): void => {
+  const carouselImages = getCarouselImages();
+  const newImage = { ...image, id: String(carouselImages.length + 1) };
+  localStorageMock.setItem('carouselImages', [...carouselImages, newImage]);
 };
 
-// Update an existing carousel image
-export const updateCarouselImage = (updatedImage: CarouselImage) => {
-  const images = getCarouselImages();
-  const updatedImages = images.map(img => 
-    img.id === updatedImage.id ? updatedImage : img
-  );
-  
-  localStorage.setItem("carouselImages", JSON.stringify(updatedImages));
-  return updatedImage;
+export const updateCarouselImage = (image: CarouselImage): void => {
+  const carouselImages = getCarouselImages();
+  const updatedImages = carouselImages.map(img => (img.id === image.id ? image : img));
+  localStorageMock.setItem('carouselImages', updatedImages);
 };
 
-// Delete a carousel image
-export const deleteCarouselImage = (id: number) => {
-  const images = getCarouselImages();
-  const updatedImages = images.filter(img => img.id !== id);
-  
-  localStorage.setItem("carouselImages", JSON.stringify(updatedImages));
-  return id;
+export const deleteCarouselImage = (id: number): void => {
+  const carouselImages = getCarouselImages();
+  const updatedImages = carouselImages.filter(image => parseInt(image.id, 10) !== id);
+  localStorageMock.setItem('carouselImages', updatedImages);
 };
 
-// Move a carousel image up in the order
-export const moveCarouselImageUp = (id: number) => {
-  const images = getCarouselImages();
-  const index = images.findIndex(img => img.id === id);
-  
-  if (index <= 0) return; // Already at the top
-  
-  const newImages = [...images];
-  const temp = newImages[index];
-  newImages[index] = newImages[index - 1];
-  newImages[index - 1] = temp;
-  
-  localStorage.setItem("carouselImages", JSON.stringify(newImages));
-  return newImages;
-};
-
-// Move a carousel image down in the order
-export const moveCarouselImageDown = (id: number) => {
-  const images = getCarouselImages();
-  const index = images.findIndex(img => img.id === id);
-  
-  if (index === -1 || index === images.length - 1) return; // Not found or already at the bottom
-  
-  const newImages = [...images];
-  const temp = newImages[index];
-  newImages[index] = newImages[index + 1];
-  newImages[index + 1] = temp;
-  
-  localStorage.setItem("carouselImages", JSON.stringify(newImages));
-  return newImages;
-};
-
-// Search products function
-export const searchProducts = (query: string): Product[] => {
-  if (!query.trim()) return [];
-  
-  const products = getProducts();
-  const searchTerm = query.toLowerCase();
-  
-  return products.filter(product => 
-    product.name.toLowerCase().includes(searchTerm) || 
-    product.description.toLowerCase().includes(searchTerm) || 
-    product.category.toLowerCase().includes(searchTerm)
-  );
-};
-
-// Get product gallery images
-export const getProductGalleryImages = (productId: number): string[] => {
-  const galleries = localStorage.getItem('productGalleries');
-  if (!galleries) return [];
-  
-  const parsedGalleries = JSON.parse(galleries);
-  return parsedGalleries[productId] || [];
-};
-
-// Update product gallery
-export const updateProductGallery = (productId: number, images: string[]): void => {
-  try {
-    // Check if localStorage is available
-    if (typeof window === 'undefined' || !window.localStorage) {
-      throw new Error('localStorage is not available');
-    }
-
-    // Check if images array is valid
-    if (!Array.isArray(images)) {
-      throw new Error('Invalid images array');
-    }
-
-    // Get current galleries
-    const galleries = localStorage.getItem('productGalleries');
-    let parsedGalleries = galleries ? JSON.parse(galleries) : {};
-    
-    // Update the gallery for the specific product
-    parsedGalleries[productId] = images;
-    
-    // Try to save to localStorage
-    try {
-      localStorage.setItem('productGalleries', JSON.stringify(parsedGalleries));
-    } catch (error) {
-      if (error instanceof Error && error.name === 'QuotaExceededError') {
-        throw new Error('Storage quota exceeded. Please try with fewer images.');
-      }
-      throw error;
-    }
-  } catch (error) {
-    console.error('Error updating product gallery:', error);
-    throw error;
+export const moveCarouselImageUp = (id: number): void => {
+  const carouselImages = getCarouselImages();
+  const index = carouselImages.findIndex(image => parseInt(image.id, 10) === id);
+  if (index > 0) {
+    const temp = carouselImages[index];
+    carouselImages[index] = carouselImages[index - 1];
+    carouselImages[index - 1] = temp;
+    localStorageMock.setItem('carouselImages', carouselImages);
   }
+};
+
+export const moveCarouselImageDown = (id: number): void => {
+  const carouselImages = getCarouselImages();
+  const index = carouselImages.findIndex(image => parseInt(image.id, 10) === id);
+  if (index < carouselImages.length - 1) {
+    const temp = carouselImages[index];
+    carouselImages[index] = carouselImages[index + 1];
+    carouselImages[index + 1] = temp;
+    localStorageMock.setItem('carouselImages', carouselImages);
+  }
+};
+
+// Product Gallery
+export const getProductGalleryImages = (productId: number): string[] | undefined => {
+  const gallery = localStorageMock.getItem('productGalleries') || productGalleries;
+  return gallery[String(productId)];
+};
+
+export const updateProductGallery = (productId: number, images: string[]): void => {
+  let gallery = localStorageMock.getItem('productGalleries') || productGalleries;
+  gallery = { ...gallery, [String(productId)]: images };
+  localStorageMock.setItem('productGalleries', gallery);
 };
