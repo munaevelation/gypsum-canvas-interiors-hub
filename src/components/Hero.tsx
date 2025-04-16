@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { getCarouselImages, CarouselImage } from "@/services/dataService";
+import { fetchCarouselImages } from "@/services/carousel/carouselService";
+import { CarouselImage } from "@/services/dataService";
 import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -14,23 +15,27 @@ const Hero = () => {
   
   useEffect(() => {
     // Load carousel images from our data service
-    const images = getCarouselImages();
+    const loadCarouselImages = async () => {
+      const images = await fetchCarouselImages();
+      
+      // If there are no carousel images, use default ones
+      if (images.length === 0) {
+        setCarouselImages([
+          {
+            id: "1", // Changed to string
+            image: "https://images.unsplash.com/photo-1618220179428-22790b461013?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=500&q=80",
+            title: "Elegant Interior Solutions",
+            subtitle: "Transform your space with our premium collection of decorative elements",
+            buttonText: "Explore Collection",
+            buttonLink: "/?category=Ceiling Cornices"
+          }
+        ]);
+      } else {
+        setCarouselImages(images);
+      }
+    };
     
-    // If there are no carousel images, use default ones
-    if (images.length === 0) {
-      setCarouselImages([
-        {
-          id: 1,
-          image: "https://images.unsplash.com/photo-1618220179428-22790b461013?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=500&q=80",
-          title: "Elegant Interior Solutions",
-          subtitle: "Transform your space with our premium collection of decorative elements",
-          buttonText: "Explore Collection",
-          buttonLink: "/?category=Ceiling Cornices"
-        }
-      ]);
-    } else {
-      setCarouselImages(images);
-    }
+    loadCarouselImages();
   }, []);
   
   useEffect(() => {

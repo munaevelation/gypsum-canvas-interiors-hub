@@ -33,6 +33,14 @@ export interface CarouselImage {
   updatedAt?: string;
 }
 
+// Add search function to work with the Header component
+export const searchProducts = (query: string): Product[] => {
+  if (!query.trim()) return [];
+  
+  // Implement search logic here against Supabase in the future
+  return [];
+};
+
 // Mock data (replace with actual data fetching later)
 const products: Product[] = [
   {

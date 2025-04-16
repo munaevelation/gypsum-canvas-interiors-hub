@@ -1,20 +1,17 @@
+
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { getCategories } from "@/services/dataService";
+import { fetchCategories } from "@/services/categories/categoriesService";
+import { Category } from "@/services/dataService";
 
 const Categories = () => {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState<Array<{
-    id: number;
-    name: string;
-    image: string;
-    description: string;
-  }>>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   
   useEffect(() => {
-    const loadCategories = () => {
-      const categoryData = getCategories();
+    const loadCategories = async () => {
+      const categoryData = await fetchCategories();
       setCategories(categoryData);
     };
     

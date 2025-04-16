@@ -23,12 +23,12 @@ import { Plus, Pencil, Trash2, Save, X } from "lucide-react";
 import ImageUpload from "./ImageUpload";
 import { toast } from "sonner";
 import { 
-  getCategories, 
-  addCategory, 
-  updateCategory, 
-  deleteCategory,
-  Category
-} from "@/services/dataService";
+  fetchCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory
+} from "@/services/categories/categoriesService";
+import { Category } from "@/services/dataService";
 
 interface CategoriesManagementProps {
   buttonClassName?: string;
@@ -37,7 +37,7 @@ interface CategoriesManagementProps {
 const CategoriesManagement = ({ buttonClassName }: CategoriesManagementProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<number | null>(null);
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
   
   const [newCategory, setNewCategory] = useState<Omit<Category, "id">>({
     name: "",
@@ -50,8 +50,8 @@ const CategoriesManagement = ({ buttonClassName }: CategoriesManagementProps) =>
     loadCategories();
   }, []);
   
-  const loadCategories = () => {
-    const categoryData = getCategories();
+  const loadCategories = async () => {
+    const categoryData = await fetchCategories();
     setCategories(categoryData);
   };
   
@@ -64,21 +64,22 @@ const CategoriesManagement = ({ buttonClassName }: CategoriesManagementProps) =>
     });
   };
   
-  const handleSaveCategory = () => {
+  const handleSaveCategory = async () => {
     // Basic validation
     if (!newCategory.name) {
       toast.error("Please enter a category name");
       return;
     }
     
-    addCategory(newCategory);
-    loadCategories(); // Reload the categories list
-    setIsAdding(false);
-    
-    toast.success("Category saved successfully!");
+    const result = await createCategory(newCategory);
+    if (result) {
+      await loadCategories(); // Reload the categories list
+      setIsAdding(false);
+      toast.success("Category saved successfully!");
+    }
   };
   
-  const handleEditCategory = (id: number) => {
+  const handleEditCategory = (id: string) => {
     setEditingCategory(id);
     const categoryToEdit = categories.find(c => c.id === id);
     if (categoryToEdit) {
@@ -90,7 +91,7 @@ const CategoriesManagement = ({ buttonClassName }: CategoriesManagementProps) =>
     }
   };
   
-  const handleUpdateCategory = () => {
+  const handleUpdateCategory = async () => {
     // Basic validation
     if (!newCategory.name) {
       toast.error("Please enter a category name");
@@ -98,25 +99,22 @@ const CategoriesManagement = ({ buttonClassName }: CategoriesManagementProps) =>
     }
     
     if (editingCategory !== null) {
-      const updatedCategory = {
-        id: editingCategory,
-        ...newCategory
-      };
-      
-      updateCategory(updatedCategory);
-      loadCategories(); // Reload the categories list
-      setEditingCategory(null);
-      
-      toast.success("Category updated successfully!");
+      const result = await updateCategory(editingCategory, newCategory);
+      if (result) {
+        await loadCategories(); // Reload the categories list
+        setEditingCategory(null);
+        toast.success("Category updated successfully!");
+      }
     }
   };
   
-  const handleDeleteCategory = (id: number) => {
+  const handleDeleteCategory = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
-      deleteCategory(id);
-      loadCategories(); // Reload the categories list
-      
-      toast.success("Category deleted successfully!");
+      const result = await deleteCategory(id);
+      if (result) {
+        await loadCategories(); // Reload the categories list
+        toast.success("Category deleted successfully!");
+      }
     }
   };
   

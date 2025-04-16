@@ -23,21 +23,20 @@ import { Plus, Pencil, Trash2, Save, X, MoveUp, MoveDown } from "lucide-react";
 import ImageUpload from "./ImageUpload";
 import { toast } from "sonner";
 import { 
-  getCarouselImages, 
-  addCarouselImage, 
-  updateCarouselImage, 
+  fetchCarouselImages,
+  createCarouselImage,
+  updateCarouselImage,
   deleteCarouselImage,
-  moveCarouselImageUp,
-  moveCarouselImageDown,
-  CarouselImage,
-  getCategoryNames
-} from "@/services/dataService";
+  updateCarouselImageOrder
+} from "@/services/carousel/carouselService";
+import { CarouselImage } from "@/services/dataService";
+import { getCategoryNames } from "@/services/dataService";
 
 const CarouselManagement = () => {
   const [carouselImages, setCarouselImages] = useState<CarouselImage[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [editingImage, setEditingImage] = useState<number | null>(null);
+  const [editingImage, setEditingImage] = useState<string | null>(null);
   
   const [newImage, setNewImage] = useState<Omit<CarouselImage, "id">>({
     image: "",
@@ -53,8 +52,8 @@ const CarouselManagement = () => {
     loadCategories();
   }, []);
   
-  const loadImages = () => {
-    const imageData = getCarouselImages();
+  const loadImages = async () => {
+    const imageData = await fetchCarouselImages();
     setCarouselImages(imageData);
   };
 
@@ -74,21 +73,22 @@ const CarouselManagement = () => {
     });
   };
   
-  const handleSaveImage = () => {
+  const handleSaveImage = async () => {
     // Basic validation
     if (!newImage.image) {
       toast.error("Please upload an image");
       return;
     }
     
-    addCarouselImage(newImage);
-    loadImages(); // Reload the images list
-    setIsAdding(false);
-    
-    toast.success("Carousel image saved successfully!");
+    const result = await createCarouselImage(newImage);
+    if (result) {
+      await loadImages(); // Reload the images list
+      setIsAdding(false);
+      toast.success("Carousel image saved successfully!");
+    }
   };
   
-  const handleEditImage = (id: number) => {
+  const handleEditImage = (id: string) => {
     setEditingImage(id);
     const imageToEdit = carouselImages.find(c => c.id === id);
     if (imageToEdit) {
@@ -97,12 +97,13 @@ const CarouselManagement = () => {
         title: imageToEdit.title,
         subtitle: imageToEdit.subtitle,
         buttonText: imageToEdit.buttonText,
-        buttonLink: imageToEdit.buttonLink
+        buttonLink: imageToEdit.buttonLink,
+        displayOrder: imageToEdit.displayOrder
       });
     }
   };
   
-  const handleUpdateImage = () => {
+  const handleUpdateImage = async () => {
     // Basic validation
     if (!newImage.image) {
       toast.error("Please upload an image");
@@ -110,38 +111,39 @@ const CarouselManagement = () => {
     }
     
     if (editingImage !== null) {
-      const updatedImage = {
-        id: editingImage,
-        ...newImage
-      };
-      
-      updateCarouselImage(updatedImage);
-      loadImages(); // Reload the images list
-      setEditingImage(null);
-      
-      toast.success("Carousel image updated successfully!");
+      const result = await updateCarouselImage(editingImage, newImage);
+      if (result) {
+        await loadImages(); // Reload the images list
+        setEditingImage(null);
+        toast.success("Carousel image updated successfully!");
+      }
     }
   };
   
-  const handleDeleteImage = (id: number) => {
+  const handleDeleteImage = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this image?")) {
-      deleteCarouselImage(id);
-      loadImages(); // Reload the images list
-      
-      toast.success("Carousel image deleted successfully!");
+      const result = await deleteCarouselImage(id);
+      if (result) {
+        await loadImages(); // Reload the images list
+        toast.success("Carousel image deleted successfully!");
+      }
     }
   };
   
-  const handleMoveUp = (id: number) => {
-    moveCarouselImageUp(id);
-    loadImages();
-    toast.success("Image moved up");
+  const handleMoveUp = async (id: string, currentOrder: number) => {
+    const result = await updateCarouselImageOrder(id, currentOrder - 1);
+    if (result) {
+      await loadImages();
+      toast.success("Image moved up");
+    }
   };
   
-  const handleMoveDown = (id: number) => {
-    moveCarouselImageDown(id);
-    loadImages();
-    toast.success("Image moved down");
+  const handleMoveDown = async (id: string, currentOrder: number) => {
+    const result = await updateCarouselImageOrder(id, currentOrder + 1);
+    if (result) {
+      await loadImages();
+      toast.success("Image moved down");
+    }
   };
   
   const handleCancelEdit = () => {
@@ -285,7 +287,7 @@ const CarouselManagement = () => {
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => handleMoveUp(image.id)}
+                        onClick={() => handleMoveUp(image.id, image.displayOrder)}
                         disabled={index === 0}
                         className="h-8 w-8 p-0"
                       >
@@ -294,7 +296,7 @@ const CarouselManagement = () => {
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => handleMoveDown(image.id)}
+                        onClick={() => handleMoveDown(image.id, image.displayOrder)}
                         disabled={index === carouselImages.length - 1}
                         className="h-8 w-8 p-0"
                       >

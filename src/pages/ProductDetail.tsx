@@ -4,7 +4,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ArrowLeft, Share2, Play, Pause, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getProductById, getProductGalleryImages, Product } from "@/services/dataService";
+import { fetchProductById } from "@/services/products/productsService";
+import { getProductGalleryImages } from "@/services/dataService";
+import { Product } from "@/services/dataService";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -22,17 +24,21 @@ const ProductDetail = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   
   useEffect(() => {
-    if (id) {
-      const productData = getProductById(parseInt(id, 10));
-      setProduct(productData);
-      if (productData) {
-        setMainImage(productData.image);
-        
-        const galleryImages = getProductGalleryImages(parseInt(id, 10)) || [];
-        setAdditionalImages(galleryImages);
+    const loadProduct = async () => {
+      if (id) {
+        const productData = await fetchProductById(id);
+        setProduct(productData);
+        if (productData) {
+          setMainImage(productData.image || "");
+          
+          const galleryImages = getProductGalleryImages(parseInt(id, 10)) || [];
+          setAdditionalImages(galleryImages);
+        }
+        setLoading(false);
       }
-      setLoading(false);
-    }
+    };
+    
+    loadProduct();
   }, [id]);
   
   const handleGoBack = () => {

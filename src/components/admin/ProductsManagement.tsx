@@ -46,13 +46,12 @@ import ProductGallery from "./ProductGallery";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { 
-  getProducts, 
-  addProduct, 
-  updateProduct, 
-  deleteProduct, 
-  getCategoryNames,
-  Product
-} from "@/services/dataService";
+  fetchProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct
+} from "@/services/products/productsService";
+import { getCategoryNames, Product } from "@/services/dataService";
 
 interface ProductsManagementProps {
   buttonClassName?: string;
@@ -62,8 +61,8 @@ const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<number | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
+  const [editingProduct, setEditingProduct] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [showGallery, setShowGallery] = useState(false);
   
   const [newProduct, setNewProduct] = useState<Omit<Product, "id">>({
@@ -77,8 +76,8 @@ const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
     isNewArrival: false
   });
   
-  const loadProducts = () => {
-    const productData = getProducts();
+  const loadProducts = async () => {
+    const productData = await fetchProducts();
     setProducts(productData);
   };
   
@@ -101,20 +100,21 @@ const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
     });
   };
   
-  const handleSaveProduct = () => {
+  const handleSaveProduct = async () => {
     if (!newProduct.name || !newProduct.category) {
       toast.error("Please fill in all required fields");
       return;
     }
     
-    addProduct(newProduct);
-    loadProducts();
-    setIsAdding(false);
-    
-    toast.success("Product added successfully!");
+    const result = await createProduct(newProduct);
+    if (result) {
+      await loadProducts();
+      setIsAdding(false);
+      toast.success("Product added successfully!");
+    }
   };
   
-  const handleEditProduct = (id: number) => {
+  const handleEditProduct = (id: string) => {
     setEditingProduct(id);
     const productToEdit = products.find(p => p.id === id);
     if (productToEdit) {
@@ -131,32 +131,29 @@ const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
     }
   };
   
-  const handleUpdateProduct = () => {
+  const handleUpdateProduct = async () => {
     if (!newProduct.name || !newProduct.category) {
       toast.error("Please fill in all required fields");
       return;
     }
     
     if (editingProduct !== null) {
-      const updatedProduct = {
-        id: editingProduct,
-        ...newProduct
-      };
-      
-      updateProduct(updatedProduct);
-      loadProducts();
-      setEditingProduct(null);
-      
-      toast.success("Product updated successfully!");
+      const result = await updateProduct(editingProduct, newProduct);
+      if (result) {
+        await loadProducts();
+        setEditingProduct(null);
+        toast.success("Product updated successfully!");
+      }
     }
   };
   
-  const handleDeleteProduct = (id: number) => {
+  const handleDeleteProduct = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      deleteProduct(id);
-      loadProducts();
-      
-      toast.success("Product deleted successfully!");
+      const result = await deleteProduct(id);
+      if (result) {
+        await loadProducts();
+        toast.success("Product deleted successfully!");
+      }
     }
   };
   
@@ -165,7 +162,7 @@ const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
     setIsAdding(false);
   };
 
-  const handleViewProduct = (id: number) => {
+  const handleViewProduct = (id: string) => {
     setSelectedProduct(id);
   };
   
@@ -192,7 +189,7 @@ const ProductsManagement = ({ buttonClassName }: ProductsManagementProps) => {
     }
   };
 
-  const handleManageGallery = (productId: number) => {
+  const handleManageGallery = (productId: string) => {
     setSelectedProduct(productId);
     setShowGallery(true);
   };

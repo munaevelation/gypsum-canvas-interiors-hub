@@ -1,8 +1,10 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Ruler, Tag, Star } from "lucide-react";
-import { getFeaturedProducts, Product } from "@/services/dataService";
+import { fetchFeaturedProducts } from "@/services/products/productsService";
+import { Product } from "@/services/dataService";
 import { useNavigate } from "react-router-dom";
 
 const FeaturedProducts = () => {
@@ -10,11 +12,15 @@ const FeaturedProducts = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    const products = getFeaturedProducts();
-    setFeaturedProducts(products);
+    const loadProducts = async () => {
+      const products = await fetchFeaturedProducts();
+      setFeaturedProducts(products);
+    };
+    
+    loadProducts();
   }, []);
 
-  const handleProductClick = (productId: number) => {
+  const handleProductClick = (productId: string) => {
     navigate(`/product/${productId}`);
   };
 
