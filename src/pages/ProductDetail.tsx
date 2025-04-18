@@ -14,27 +14,27 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 const ProductDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [mainImage, setMainImage] = useState<string>("");
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [product, setProduct] = useState<Product | null>(null);
   const [additionalImages, setAdditionalImages] = useState<string[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   
   useEffect(() => {
     const loadProduct = async () => {
-      if (id) {
+      if (!id) return;
+      
+      try {
         const productData = await fetchProductById(id);
-        setProduct(productData);
         if (productData) {
-          setMainImage(productData.image || "");
-          
-          const galleryImages = getProductGalleryImages(parseInt(id, 10)) || [];
+          setProduct(productData);
+          const galleryImages = await getProductGalleryImages(id);
           setAdditionalImages(galleryImages);
         }
-        setLoading(false);
+      } catch (error) {
+        console.error("Error loading product:", error);
       }
     };
     
@@ -71,18 +71,6 @@ const ProductDetail = () => {
     }
   };
   
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <div className="flex-grow flex items-center justify-center">
-          <p className="text-lg">Loading product details...</p>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-  
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -118,11 +106,11 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="space-y-6">
             <div className="aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-50 relative">
-              {isVideo(mainImage) ? (
+              {isVideo(product.image) ? (
                 <div className="relative h-full w-full group">
                   <video
                     ref={videoRef}
-                    src={mainImage}
+                    src={product.image}
                     className="h-full w-full object-cover"
                     onClick={handleVideoClick}
                     playsInline
@@ -147,7 +135,7 @@ const ProductDetail = () => {
                 </div>
               ) : (
                 <img 
-                  src={mainImage} 
+                  src={product.image} 
                   alt={product.name} 
                   className="h-full w-full object-cover"
                 />
@@ -163,9 +151,9 @@ const ProductDetail = () => {
                       <CarouselItem key={index} className="basis-1/3 md:basis-1/4 lg:basis-1/6">
                         <div 
                           className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 transition-colors ${
-                            mainImage === img ? 'border-[var(--color-imperial-blue)]' : 'border-transparent hover:border-gray-200'
+                            currentImageIndex === index ? 'border-[var(--color-imperial-blue)]' : 'border-transparent hover:border-gray-200'
                           }`}
-                          onClick={() => setMainImage(img)}
+                          onClick={() => setCurrentImageIndex(index)}
                         >
                           {isVideo(img) ? (
                             <div className="relative h-full w-full bg-gray-800 flex items-center justify-center">

@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -20,6 +19,7 @@ const Categories = () => {
   
   const handleCategoryClick = (categoryName: string) => {
     navigate(`/?category=${encodeURIComponent(categoryName)}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   
   return (

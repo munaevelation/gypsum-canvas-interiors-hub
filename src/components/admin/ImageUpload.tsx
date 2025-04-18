@@ -1,121 +1,92 @@
-
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Image, Upload, X } from "lucide-react";
+import { Image as ImageIcon, Upload, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
-  value: string;
-  onChange: (value: string) => void;
+  onUpload: (url: string) => void;
+  currentImage?: string;
 }
 
-const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
-  const [preview, setPreview] = useState<string | null>(value || null);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+const ImageUpload = ({ onUpload, currentImage }: ImageUploadProps) => {
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileChange = (file: File) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
-    
-    // Check if file is an image
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
       return;
     }
-    
-    // Create a URL for preview
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setPreview(result);
-      onChange(result);
-    };
-    reader.readAsDataURL(file);
-  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFileChange(e.target.files[0]);
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
     }
-  };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileChange(e.dataTransfer.files[0]);
+    setIsUploading(true);
+    try {
+      // Here you would typically upload the file to your storage service
+      // For now, we'll create a mock URL
+      const mockUrl = URL.createObjectURL(file);
+      onUpload(mockUrl);
+      toast.success("Image uploaded successfully");
+    } catch (error) {
+      toast.error("Failed to upload image");
+    } finally {
+      setIsUploading(false);
     }
   };
 
   const handleRemoveImage = () => {
-    setPreview(null);
-    onChange("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    onUpload("");
   };
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
-        Product Image
-      </Label>
-      
-      {preview ? (
-        <div className="relative rounded-md overflow-hidden border border-gray-200 w-full aspect-video bg-gray-50">
-          <img 
-            src={preview} 
-            alt="Preview" 
-            className="w-full h-full object-contain"
+      {currentImage ? (
+        <div className="relative">
+          <img
+            src={currentImage}
+            alt="Uploaded"
+            className="w-full h-48 object-cover rounded-lg"
           />
-          <Button 
-            variant="destructive" 
-            size="sm" 
-            className="absolute top-2 right-2 h-8 w-8 p-0"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 bg-white/80 hover:bg-white"
             onClick={handleRemoveImage}
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
       ) : (
-        <div
-          className={`border-2 border-dashed rounded-md p-8 transition-colors duration-200 ${
-            isDragging ? 'border-[#9b87f5] bg-purple-50' : 'border-gray-300 hover:border-[#9b87f5]'
-          }`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <div className="flex flex-col items-center justify-center text-center cursor-pointer">
-            <Image className="w-12 h-12 mb-3 text-gray-400" />
-            <p className="mb-2 text-sm text-gray-500">
-              <span className="font-semibold">Click to upload</span> or drag and drop
-            </p>
-            <p className="text-xs text-gray-500">PNG, JPG or WEBP (Max 10MB)</p>
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+          <div className="flex flex-col items-center justify-center space-y-2">
+            <ImageIcon className="h-8 w-8 text-gray-400" />
+            <p className="text-sm text-gray-500">Click to upload an image</p>
+            <Button
+              variant="outline"
+              className="border-black/20"
+              disabled={isUploading}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {isUploading ? "Uploading..." : "Upload Image"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </Button>
           </div>
-          <input
-            id="image-upload"
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            accept="image/*"
-            onChange={handleInputChange}
-          />
         </div>
       )}
     </div>
   );
 };
 
-export default ImageUpload;
+export default ImageUpload; 

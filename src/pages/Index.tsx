@@ -80,24 +80,25 @@ const AnimatedText = ({ text, className = "", onAnimationComplete }: { text: str
 
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const activeCategory = searchParams.get("category") || null;
-  const productParam = searchParams.get("product") || null;
-  const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const activeCategory = searchParams.get("category");
   
-  // Check for direct product navigation
   useEffect(() => {
+    const productParam = searchParams.get("product");
     if (productParam) {
       const product = getProductById(parseInt(productParam, 10));
       if (product) {
         navigate(`/product/${productParam}`);
       }
     }
-  }, [productParam, navigate]);
+  }, [searchParams, navigate]);
   
   useEffect(() => {
     if (activeCategory) {
@@ -105,7 +106,11 @@ const Index = () => {
       const filtered = allProducts.filter(
         product => product.category === activeCategory
       );
-      setCategoryProducts(filtered);
+      setProducts(filtered);
+      setFilteredProducts(filtered);
+    } else {
+      setProducts([]);
+      setFilteredProducts([]);
     }
   }, [activeCategory]);
   
@@ -147,41 +152,25 @@ const Index = () => {
       <main className="flex-grow">
         {!activeCategory && (
           <>
-            {isLoading ? (
-              <div className="h-screen flex items-center justify-center">
-                <AnimatedText 
-                  text="Premium Interior Solutions" 
-                  className="text-black"
-                  onAnimationComplete={() => {
-                    setTimeout(() => {
-                      setIsLoading(false);
-                    }, 1000);
-                  }}
-                />
+            <Hero />
+            <div className="py-16 px-4 bg-white">
+              <div className="container mx-auto">
+                <h1 className="text-center text-5xl font-bold mb-8 text-black">
+                  Premium Interior Solutions
+                </h1>
+                <motion.p 
+                  className="text-center text-lg text-gray-600 max-w-2xl mx-auto"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.8 }}
+                >
+                  Discover our exquisite collection of gypsum designs that transform ordinary spaces into extraordinary experiences.
+                </motion.p>
               </div>
-            ) : (
-              <>
-                <Hero />
-                <div className="py-16 px-4 bg-white">
-                  <div className="container mx-auto">
-                    <h1 className="text-center text-5xl font-bold mb-8 text-black">
-                      Premium Interior Solutions
-                    </h1>
-                    <motion.p 
-                      className="text-center text-lg text-gray-600 max-w-2xl mx-auto"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5, duration: 0.8 }}
-                    >
-                      Discover our exquisite collection of gypsum designs that transform ordinary spaces into extraordinary experiences.
-                    </motion.p>
-                  </div>
-                </div>
-                <Categories />
-                <FeaturedProducts />
-                <NewArrivals />
-              </>
-            )}
+            </div>
+            <Categories />
+            <FeaturedProducts />
+            <NewArrivals />
           </>
         )}
         
@@ -192,9 +181,9 @@ const Index = () => {
               <p className="text-gray-600">Browse our collection of {activeCategory.toLowerCase()}</p>
             </div>
             
-            {categoryProducts.length > 0 ? (
+            {products.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {categoryProducts.map((product) => (
+                {products.map((product) => (
                   <Card 
                     key={product.id}
                     className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col border-black/10"

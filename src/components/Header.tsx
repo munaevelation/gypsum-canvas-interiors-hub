@@ -86,24 +86,23 @@ const Header = () => {
   };
   
   const scrollToSection = (sectionId: string) => {
-    setIsMenuOpen(false);
-    
-    if (location.pathname !== "/") {
-      navigate(`/?section=${sectionId}`);
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: sectionId } });
       return;
     }
-    
+
     const section = document.getElementById(sectionId);
     if (section) {
-      const headerOffset = 100; // Account for header height and some padding
-      const elementPosition = section.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      const headerHeight = 80;
+      const sectionPosition = section.getBoundingClientRect().top;
+      const offsetPosition = sectionPosition + window.pageYOffset - headerHeight;
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: "smooth"
+        behavior: 'smooth'
       });
     }
+    setIsMenuOpen(false);
   };
   
   const scrollToTop = () => {
@@ -118,23 +117,42 @@ const Header = () => {
   };
   
   useEffect(() => {
-    if (location.pathname === "/" && location.search) {
-      const section = new URLSearchParams(location.search).get('section');
-      if (section) {
-        setTimeout(() => {
-          const sectionElement = document.getElementById(section);
-          if (sectionElement) {
-            const headerOffset = 100;
-            const elementPosition = sectionElement.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+    if (location.pathname === '/' && location.state?.scrollTo) {
+      const sectionId = location.state.scrollTo;
+      setTimeout(() => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          const headerHeight = 80;
+          const sectionPosition = section.getBoundingClientRect().top;
+          const offsetPosition = sectionPosition + window.pageYOffset - headerHeight;
 
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: "smooth"
-            });
-          }
-        }, 100);
-      }
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (location.pathname === '/' && location.hash) {
+      const sectionId = location.hash.substring(1);
+      setTimeout(() => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          const headerHeight = 80;
+          const sectionPosition = section.getBoundingClientRect().top;
+          const offsetPosition = sectionPosition + window.pageYOffset - headerHeight;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [location]);
 
@@ -154,14 +172,14 @@ const Header = () => {
       {to ? (
         <Link 
           to={to} 
-          className="text-[var(--color-text)] hover:text-[var(--color-hover)] font-medium transition-colors"
+          className="text-[var(--color-text)] hover:text-[var(--color-hover)] font-bold transition-colors"
         >
           {children}
         </Link>
       ) : (
         <button 
           onClick={onClick}
-          className="text-[var(--color-text)] hover:text-[var(--color-hover)] font-medium transition-colors"
+          className="text-[var(--color-text)] hover:text-[var(--color-hover)] font-bold transition-colors"
         >
           {children}
         </button>
@@ -175,21 +193,20 @@ const Header = () => {
       className="flex flex-col items-center"
       whileTap={{ scale: 0.95 }}
     >
-      <div className="w-12 h-12 rounded-full bg-[var(--color-primary)] text-[var(--color-cream)] flex items-center justify-center mb-1 shadow-[var(--box-shadow)]">
+      <div className="w-12 h-12 rounded-full bg-[#FF3D7F] text-white flex items-center justify-center mb-1 shadow-md">
         {icon}
       </div>
-      <span className="text-xs text-[var(--color-text)]">{label}</span>
+      <span className="text-xs font-bold text-black">{label}</span>
     </motion.button>
   );
   
   const navigateToAbout = () => {
     navigate('/about');
-    window.scrollTo({ top: 0, behavior: "smooth" });
     setIsMenuOpen(false);
   };
 
   const handleContactClick = () => {
-    const whatsappMessage = "Hello, I'd like to get in touch!";
+    const whatsappMessage = "Hello! I would like to get in touch with Shekhar Sailesh Decoration.";
     const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(whatsappMessage)}`;
     window.open(whatsappUrl, '_blank');
     setIsMenuOpen(false);
@@ -219,7 +236,7 @@ const Header = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <motion.button 
-                  className="flex items-center text-black hover:text-[var(--color-primary)] font-medium"
+                  className="flex items-center text-black hover:text-[var(--color-primary)] font-bold"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}
@@ -253,23 +270,14 @@ const Header = () => {
           </nav>
           
           {/* Search bar on right */}
-          <div className="flex-shrink-0 ml-4">
+          <div className="flex-shrink-0 ml-4 flex items-center">
             <div className="search_wrap search_wrap_3">
               <div className="search_box">
                 <div 
-                  className="btn btn_common hover:text-[var(--color-white)] p-2 cursor-pointer transition-colors" 
+                  className="searchButton w-10 h-10 rounded-full bg-white border-2 border-black flex items-center justify-center cursor-pointer transition-all duration-400 hover:bg-gray-100" 
                   onClick={() => setIsSearchOpen(true)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="0.8em"
-                    viewBox="0 0 512 512"
-                    className="fill-current text-white hover:text-[var(--color-white)] transition-colors"
-                  >
-                    <path
-                      d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
-                    />
-                  </svg>
+                  <Search className="h-5 w-5 text-black" />
                 </div>
               </div>
             </div>
@@ -280,7 +288,7 @@ const Header = () => {
         {isMobile && (
           <div className="flex justify-between w-full px-2 space-x-2">
             <CircularNavButton 
-              icon={<Home className="h-5 w-5" />} 
+              icon={<Home className="h-5 w-5 text-white" />} 
               label="Home" 
               onClick={navigateToHome} 
             />
@@ -288,10 +296,10 @@ const Header = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center mb-1 shadow-md">
-                    <Menu className="h-5 w-5" />
+                  <div className="w-12 h-12 rounded-full bg-[#FF3D7F] text-white flex items-center justify-center mb-1 shadow-md">
+                    <Menu className="h-5 w-5 text-white" />
                   </div>
-                  <span className="text-xs text-black">Categories</span>
+                  <span className="text-xs font-bold text-black">Categories</span>
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent 
@@ -303,7 +311,7 @@ const Header = () => {
                   <DropdownMenuItem 
                     key={category}
                     onClick={() => navigateToCategory(category)}
-                    className="cursor-pointer text-black hover:text-[var(--color-primary)] font-medium py-2 px-4"
+                    className="cursor-pointer text-black hover:text-[var(--color-primary)] font-bold py-2 px-4"
                   >
                     {category}
                   </DropdownMenuItem>
@@ -312,25 +320,25 @@ const Header = () => {
             </DropdownMenu>
             
             <CircularNavButton 
-              icon={<Star className="h-5 w-5" />} 
+              icon={<Star className="h-5 w-5 text-white" />} 
               label="Featured" 
               onClick={() => scrollToSection("featured")} 
             />
             
             <CircularNavButton 
-              icon={<Clock className="h-5 w-5" />} 
+              icon={<Clock className="h-5 w-5 text-white" />} 
               label="New" 
               onClick={() => scrollToSection("new-arrivals")} 
             />
               
             <CircularNavButton 
-              icon={<Info className="h-5 w-5" />} 
+              icon={<Info className="h-5 w-5 text-white" />} 
               label="About" 
               onClick={() => navigateToAbout()} 
             />
             
             <CircularNavButton 
-              icon={<MessageSquare className="h-5 w-5" />} 
+              icon={<MessageSquare className="h-5 w-5 text-white" />} 
               label="Contact" 
               onClick={handleContactClick} 
             />
